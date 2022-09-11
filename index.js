@@ -18,6 +18,9 @@ app.get("/", (_req, res) => {
   return res.json(data);
 });
 
+const routeAuth = require("./src/routes/auth");
+app.use("/auth", routeAuth);
+
 app.listen(port, () => {
   console.log("App is running in port 8080");
 });

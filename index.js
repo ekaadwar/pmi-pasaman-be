@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const routeAuth = require("./src/routes/auth");
+const routeUser = require("./src/routes/users");
 
 const { APP_UPLOAD_ROUTE, APP_UPLOAD_PATH } = process.env;
 const port = process.env.PORT || 8080;
@@ -17,9 +19,8 @@ app.get("/", (_req, res) => {
   };
   return res.json(data);
 });
-
-const routeAuth = require("./src/routes/auth");
 app.use("/auth", routeAuth);
+app.use("/users", routeUser);
 
 app.listen(port, () => {
   console.log("App is running in port 8080");

@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -11,7 +10,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use(APP_UPLOAD_ROUTE, express.static(APP_UPLOAD_PATH));
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   const data = {
     success: true,
     message: "Hello World!",

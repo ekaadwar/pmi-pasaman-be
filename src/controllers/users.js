@@ -1,7 +1,246 @@
+const bcrypt = require("bcrypt");
 const fs = require("fs");
-const { response } = require("../helpers/standardResponse");
+const itemPicture = require("../helpers/upload").single("picture");
 const modelUsers = require("../models/users");
+const { response } = require("../helpers/standardResponse");
 const { APP_URL } = process.env;
+
+exports.updateProfilePart = (req, res) => {
+  itemPicture(req, res, (error) => {
+    if (!error) {
+      const { id: idUser } = req.authUser;
+      const id = parseInt(idUser);
+
+      modelUsers.getUserById(idUser, (error, results) => {
+        if (!error) {
+          if (req.file) {
+            console.log(req.file);
+            if (results[0].photo !== null) {
+              const fileImage = results[0].photo.split("/")[2];
+              const path = `assets/images/${fileImage}`;
+
+              if (fs.existsSync(path)) {
+                fs.unlink(path, (error) => {
+                  if (error) throw error;
+                  console.log(`${path} has been deleted`);
+                });
+              } else {
+                console.log(path);
+                console.log("Previous photo is doesn't exists! ");
+              }
+            }
+
+            req.body.photo = `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`;
+          }
+
+          const column = Object.keys(req.body);
+          const value = Object.values(req.body);
+          const countColumn = column.length;
+
+          if (countColumn > 0) {
+            for (let i = 0; i < countColumn; i++) {
+              const col = column[i];
+              const val = value[i];
+              const data = { id, col, val };
+
+              modelUsers.updateProfilePart(data, (errorUpdate) => {
+                if (!errorUpdate) {
+                  console.log(data);
+                  console.log(`${col} column has been successfully updated`);
+                  console.log(req.body);
+                } else {
+                  console.log(`${col} column has been failed to update`);
+                  console.log(errorUpdate);
+                  console.log(req.body);
+                }
+              });
+            }
+
+            return response(
+              res,
+              200,
+              true,
+              "the update process has been completed"
+            );
+          } else {
+            return response(res, 400, false, "you have to enter data!");
+          }
+        } else {
+          return response(
+            res,
+            404,
+            false,
+            `Data not found! error : ${error.sqlMessage}`
+          );
+        }
+      });
+    } else {
+      console.log(error);
+      return response(
+        res,
+        400,
+        false,
+        "an error occured when uploading process"
+      );
+    }
+  });
+};
+
+exports.updateUserById = (req, res) => {
+  itemPicture(req, res, (error) => {
+    if (!error) {
+      const { id: idUser } = req.params;
+      const id = parseInt(idUser);
+
+      modelUsers.getUserById(id, (error, results) => {
+        if (!error) {
+          if (req.file) {
+            console.log(req.file);
+            if (results[0].photo !== null) {
+              const fileImage = results[0].photo.split("/")[2];
+              const path = `assets/images/${fileImage}`;
+
+              if (fs.existsSync(path)) {
+                fs.unlink(path, (error) => {
+                  if (error) throw error;
+                  console.log(`${path} has been deleted`);
+                });
+              } else {
+                console.log(path);
+                console.log("Previous photo is doesn't exists! ");
+              }
+            }
+
+            req.body.photo = `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`;
+          }
+
+          const column = Object.keys(req.body);
+          const value = Object.values(req.body);
+          const countColumn = column.length;
+
+          if (countColumn > 0) {
+            for (let i = 0; i < countColumn; i++) {
+              const col = column[i];
+              const val = value[i];
+              const data = { id, col, val };
+
+              modelUsers.updateProfilePart(data, (errorUpdate) => {
+                if (!errorUpdate) {
+                  console.log(data);
+                  console.log(`${col} column has been successfully updated`);
+                  console.log(req.body);
+                } else {
+                  console.log(`${col} column has been failed to update`);
+                  console.log(errorUpdate);
+                  console.log(req.body);
+                }
+              });
+            }
+
+            return response(
+              res,
+              200,
+              true,
+              "the update process has been completed"
+            );
+          } else {
+            return response(res, 400, false, "you have to enter data!");
+          }
+        } else {
+          return response(
+            res,
+            404,
+            false,
+            `Data not found! error : ${error.sqlMessage}`
+          );
+        }
+      });
+    } else {
+      console.log(error);
+      return response(
+        res,
+        400,
+        false,
+        "an error occured when uploading process"
+      );
+    }
+  });
+};
+
+exports.getProfile = (req, res) => {
+  modelUsers.getUserById(req.authUser.id, (error, results) => {
+    if (!error) {
+      if (results[0].picture !== null) {
+        results[0].picture = `${APP_URL}${results[0].picture}`;
+      }
+      return response(res, 200, true, "Get Profile successfuly!", results[0]);
+    } else {
+      return response(
+        res,
+        404,
+        false,
+        `Data not found! error : ${error.sqlMessage}`
+      );
+    }
+  });
+};
+
+exports.getUserById = (req, res) => {
+  modelUsers.getUserById(req.params.id, (error, results) => {
+    if (!error) {
+      if (results[0].picture !== null) {
+        results[0].picture = `${APP_URL}${results[0].picture}`;
+      }
+      return response(res, 200, true, "Get Profile successfuly!", results[0]);
+    } else {
+      return response(
+        res,
+        404,
+        false,
+        `Data not found! error : ${error.sqlMessage}`
+      );
+    }
+  });
+};
+
+exports.addUser = (req, res) => {
+  if (req.authUser.role === "admin") {
+    itemPicture(req, res, async (error) => {
+      if (!error) {
+        req.body.file = req.file
+          ? `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`
+          : null;
+
+        const data = req.body;
+        data.password = await bcrypt.hash(
+          data.password,
+          await bcrypt.genSalt()
+        );
+
+        modelUsers.addUser(data, (error, results) => {
+          if (!error) {
+            if (results.affectedRows) {
+              return response(
+                res,
+                200,
+                true,
+                "Data has been inserted succesfully!"
+              );
+            } else {
+              return response(res, 400, false, "Failed to created items");
+            }
+          } else {
+            response(res, 500, false, error);
+          }
+        });
+      } else {
+        return standardResponse(res, 500, false, error);
+      }
+    });
+  } else {
+    return response(res, 400, false, "Sorry, you have no authority!");
+  }
+};
 
 exports.getUsers = (req, res) => {
   if (req.authUser.role === "admin") {

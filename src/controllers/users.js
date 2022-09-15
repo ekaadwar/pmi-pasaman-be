@@ -311,3 +311,33 @@ exports.updateDetailUser = (req, res) => {
     }
   });
 };
+
+// development
+exports.updateIdUserDetail = (req, res) => {
+  modelUsers.getUserIdAndName((error, result) => {
+    if (!error) {
+      result.map((item) => {
+        const email = `${item.nama}@mail.com`;
+        const data = { id: item.id, email };
+        console.log(data);
+        // modelUsers.getUserByEmail(email, (error, result) => {
+        //   if (!error) {
+        //     console.log("data available");
+        //   } else {
+        //     console.log("data not available");
+        //   }
+        // });
+        modelUsers.updateIdUserDetail(data, (error) => {
+          if (!error) {
+            console.log("id successfully updated");
+          } else {
+            console.log("id failed to update");
+          }
+        });
+      });
+      console.log(`${result.length} rows`);
+    } else {
+      console.log(error);
+    }
+  });
+};

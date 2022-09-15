@@ -44,6 +44,10 @@ exports.getIdByPhone = (noHp, cb) => {
   connection.query(`SELECT id FROM ${table} WHERE no_hp = ${noHp}`, cb);
 };
 
+exports.getUserIdAndName = (cb) => {
+  connection.query(`SELECT id, nama FROM ${table}`, cb);
+};
+
 exports.getTotalUser = (cond, cb) => {
   connection.query(
     `SELECT COUNT (${table}.id) as count FROM ${table} WHERE ${table}.nama LIKE '%${cond.search}%'`,
@@ -99,15 +103,23 @@ exports.getUserById = (id, cb) => {
 
 // ----- update -----
 
-exports.updateProfilePart = (data, cb) => {
-  const sql = `UPDATE ${table} SET ${data.col}='${data.val}' WHERE id=${data.id}`;
-  connection.query(sql, cb);
-};
-
 exports.updateDetailUser = (data, cb) => {
   connection.query(
     `UPDATE detail_user SET id = ?, email = ? WHERE id=?`,
     [data.id, data.email, data.id],
     cb
   );
+};
+
+exports.updateIdUserDetail = (data, cb) => {
+  connection.query(
+    `UPDATE detail_user SET id_user=? WHERE email=?`,
+    [data.id, data.email],
+    cb
+  );
+};
+
+exports.updateProfilePart = (data, cb) => {
+  const sql = `UPDATE ${table} SET ${data.col}='${data.val}' WHERE id=${data.id}`;
+  connection.query(sql, cb);
 };

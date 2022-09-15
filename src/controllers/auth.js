@@ -15,6 +15,7 @@ exports.signup = async (req, res) => {
             ...data,
             idUser: resId[0].id,
           };
+          console.log(detail);
           modelUsers.createDetailUsers(detail, (errDetail) => {
             if (!errDetail) {
               return response(res, 200, true, "Register successfully");

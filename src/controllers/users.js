@@ -217,7 +217,7 @@ exports.addUser = (req, res) => {
           await bcrypt.genSalt()
         );
 
-        modelUsers.addUser(data, (error, results) => {
+        modelUsers.createUserByAdmin(data, (error, results) => {
           if (!error) {
             if (results.affectedRows) {
               return response(

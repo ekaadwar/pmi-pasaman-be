@@ -9,8 +9,15 @@ exports.signup = async (req, res) => {
 
   modelUsers.createUsers(data, (error) => {
     if (!error) {
-      return response(res, 200, true, "Register successfully");
+      modelUsers.createDetailUsers(data, (errDetail) => {
+        if (!errDetail) {
+          return response(res, 200, true, "Register successfully");
+        } else {
+          return response(res, 500, false, "Detail failed to add");
+        }
+      });
     } else {
+      console.log(error);
       return response(
         res,
         500,

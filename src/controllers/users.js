@@ -170,8 +170,8 @@ exports.updateUserById = (req, res) => {
 exports.getProfile = (req, res) => {
   modelUsers.getUserById(req.authUser.id, (error, results) => {
     if (!error) {
-      if (results[0].picture !== null) {
-        results[0].picture = `${APP_URL}${results[0].picture}`;
+      if (results[0].foto !== null) {
+        results[0].foto = `${APP_URL}${results[0].foto}`;
       }
       return response(res, 200, true, "Get Profile successfuly!", results[0]);
     } else {
@@ -188,8 +188,8 @@ exports.getProfile = (req, res) => {
 exports.getUserById = (req, res) => {
   modelUsers.getUserById(req.params.id, (error, results) => {
     if (!error) {
-      if (results[0].picture !== null) {
-        results[0].picture = `${APP_URL}${results[0].picture}`;
+      if (results[0].foto !== null) {
+        results[0].foto = `${APP_URL}${results[0].foto}`;
       }
       return response(res, 200, true, "Get Profile successfuly!", results[0]);
     } else {
@@ -292,4 +292,22 @@ exports.getUsers = (req, res) => {
   } else {
     return response(res, 400, false, "Sorry, you have no authority!");
   }
+};
+
+exports.updateDetailUser = (req, res) => {
+  modelUsers.getUser((error, results) => {
+    if (!error) {
+      results.map((items, idx) => {
+        modelUsers.updateDetailUser(items, (errUpdate) => {
+          if (!errUpdate) {
+            console.log(items.id);
+          } else {
+            console.log(`error update at id = ${items.id}. ${errUpdate}`);
+          }
+        });
+      });
+    } else {
+      console.log(error);
+    }
+  });
 };

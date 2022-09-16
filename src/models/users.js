@@ -1,6 +1,5 @@
 const connection = require("../helpers/database");
 const table = "user";
-const joinTable1 = "detail_user";
 
 // ----- create -----
 exports.createUserByAdmin = (data, cb) => {

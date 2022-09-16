@@ -87,3 +87,46 @@ exports.getDonorData = (req, res) => {
     response(res, 500, false, "Sorry, you have no authority.");
   }
 };
+
+exports.getDonorByIdUser = (req, res) => {
+  if (req.authUser.role === "admin") {
+    const { id } = req.params;
+    userModels.getUserById(id, (err, result) => {
+      if (!err) {
+        if (result.length > 0) {
+          donorModels.getDonorByIdUser(id, (error, results) => {
+            if (!error) {
+              if (results.length > 0) {
+                response(
+                  res,
+                  200,
+                  true,
+                  `Data riwayat donor ${result[0].nama}`,
+                  results
+                );
+              } else {
+                response(
+                  res,
+                  404,
+                  false,
+                  `Data donor user ${result[0].nama} tidak ditemukan.`
+                );
+              }
+            } else {
+              response(
+                res,
+                500,
+                false,
+                `An error occured when get donor data. ${error}`
+              );
+            }
+          });
+        } else {
+          response(res, 404, false, "Sorry, user not found.");
+        }
+      } else {
+        response(res, 500, false, `An error occured. ${err}`);
+      }
+    });
+  }
+};

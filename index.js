@@ -3,6 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const routeAuth = require("./src/routes/auth");
+const routeDonor = require("./src/routes/donor");
+const routeStock = require("./src/routes/stock");
 const routeUser = require("./src/routes/users");
 
 const { APP_UPLOAD_ROUTE, APP_UPLOAD_PATH } = process.env;
@@ -20,6 +22,8 @@ app.get("/", (_req, res) => {
   return res.json(data);
 });
 app.use("/auth", routeAuth);
+app.use("/donor", routeDonor);
+app.use("/stock", routeStock);
 app.use("/users", routeUser);
 
 app.listen(port, () => {

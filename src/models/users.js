@@ -40,6 +40,10 @@ exports.createDetailUsers = (data, cb) => {
 
 // ----- read -----
 
+exports.getBloodById = (id, cb) => {
+  connection.query(`SELECT id, gol_darah FROM ${table} WHERE id=?`, [id], cb);
+};
+
 exports.getIdByPhone = (noHp, cb) => {
   connection.query(`SELECT id FROM ${table} WHERE no_hp = ${noHp}`, cb);
 };

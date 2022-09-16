@@ -128,5 +128,38 @@ exports.getDonorByIdUser = (req, res) => {
         response(res, 500, false, `An error occured. ${err}`);
       }
     });
+  } else {
+    response(res, 400, false, "Maaf, Anda tidak memiliki otoritas.");
   }
+};
+
+exports.getMyHistory = (req, res) => {
+  const { id } = req.authUser;
+  console.log(id);
+  userModels.getUserById(id, (err, result) => {
+    if (!err) {
+      if (result.length > 0) {
+        donorModels.getDonorByIdUser(id, (error, results) => {
+          if (!error) {
+            if (results.length > 0) {
+              response(res, 200, true, `Data riwayat donor Anda`, results);
+            } else {
+              response(res, 404, false, `Data donor Anda tidak ditemukan.`);
+            }
+          } else {
+            response(
+              res,
+              500,
+              false,
+              `An error occured when get donor data. ${error}`
+            );
+          }
+        });
+      } else {
+        response(res, 404, false, "Sorry, user not found.");
+      }
+    } else {
+      response(res, 500, false, `An error occured. ${err}`);
+    }
+  });
 };

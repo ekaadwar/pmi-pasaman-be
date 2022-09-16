@@ -10,3 +10,12 @@ exports.addDonor = (data, cb) => {
     cb
   );
 };
+
+// ----- read -----
+
+exports.getDonorData = (cb) => {
+  connection.query(
+    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id`,
+    cb
+  );
+};

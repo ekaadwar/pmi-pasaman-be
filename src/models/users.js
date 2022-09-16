@@ -48,10 +48,6 @@ exports.getIdByPhone = (noHp, cb) => {
   connection.query(`SELECT id FROM ${table} WHERE no_hp = ${noHp}`, cb);
 };
 
-exports.getUserIdAndName = (cb) => {
-  connection.query(`SELECT id, nama FROM ${table}`, cb);
-};
-
 exports.getTotalUser = (cond, cb) => {
   connection.query(
     `SELECT COUNT (${table}.id) as count FROM ${table} WHERE ${table}.nama LIKE '%${cond.search}%'`,
@@ -64,6 +60,27 @@ exports.getUser = (cb) => {
 };
 
 exports.getUserByCond = (cond, cb) => {
+  console.log(cond);
+  const orderBy = Object.keys(cond.sort)[0];
+  const sort = cond.sort[orderBy];
+  let where = `${table}.nama LIKE '%${cond.search}%'`;
+  if (cond.blood) {
+    where += ` AND ${table}.gol_darah = "${cond.blood}"`;
+  }
+  connection.query(
+    `
+  SELECT ${table}.id, ${table}.nama, detail_user.email, ${table}.no_hp, ${table}.alamat, ${table}.pekerjaan, ${table}.umur, ${table}.jenis_kelamin, ${table}.gol_darah
+  FROM ${table} 
+  LEFT JOIN detail_user ON ${table}.id = detail_user.id
+  WHERE ${where}
+  ORDER BY ${table}.${orderBy} ${sort}
+  LIMIT ? OFFSET ?`,
+    [cond.limit, cond.offset],
+    cb
+  );
+};
+
+exports.getUserByBlood = (blood, cb) => {
   const orderBy = Object.keys(cond.sort)[0];
   const sort = cond.sort[orderBy];
   connection.query(
@@ -71,7 +88,7 @@ exports.getUserByCond = (cond, cb) => {
   SELECT ${table}.id, ${table}.nama, detail_user.email, ${table}.no_hp, ${table}.alamat, ${table}.pekerjaan, ${table}.umur, ${table}.jenis_kelamin, ${table}.gol_darah
   FROM ${table} 
   LEFT JOIN detail_user ON ${table}.id = detail_user.id
-  WHERE ${table}.nama LIKE '%${cond.search}%' 
+  WHERE ${table}.nama LIKE '%${cond.search}%' AND ${table}.gol_darah = "A"
   ORDER BY ${table}.${orderBy} ${sort}
   LIMIT ? OFFSET ?`,
     [cond.limit, cond.offset],
@@ -105,6 +122,10 @@ exports.getUserById = (id, cb) => {
   );
 };
 
+exports.getUserIdAndName = (cb) => {
+  connection.query(`SELECT id, nama FROM ${table}`, cb);
+};
+
 // ----- update -----
 
 exports.updateDetailUser = (data, cb) => {
@@ -126,4 +147,13 @@ exports.updateIdUserDetail = (data, cb) => {
 exports.updateProfilePart = (data, cb) => {
   const sql = `UPDATE ${table} SET ${data.col}='${data.val}' WHERE id=${data.id}`;
   connection.query(sql, cb);
+};
+
+// delete
+
+exports.deleteUser = (id, cb) => {
+  connection.query(
+    `UPDATE detail_user SET status="inactive" WHERE id_user=${id}`,
+    cb
+  );
 };

@@ -5,6 +5,157 @@ const modelUsers = require("../models/users");
 const { response } = require("../helpers/standardResponse");
 const { APP_URL } = process.env;
 
+// ----- create -----
+
+exports.addUser = (req, res) => {
+  if (req.authUser.role === "admin") {
+    itemPicture(req, res, async (error) => {
+      if (!error) {
+        req.body.file = req.file
+          ? `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`
+          : null;
+
+        const data = req.body;
+        data.password = await bcrypt.hash(
+          data.password,
+          await bcrypt.genSalt()
+        );
+
+        modelUsers.createUserByAdmin(data, (error, results) => {
+          if (!error) {
+            if (results.affectedRows) {
+              return response(
+                res,
+                200,
+                true,
+                "Data has been inserted succesfully!"
+              );
+            } else {
+              return response(res, 400, false, "Failed to created items");
+            }
+          } else {
+            response(res, 500, false, error);
+          }
+        });
+      } else {
+        return standardResponse(res, 500, false, error);
+      }
+    });
+  } else {
+    return response(res, 400, false, "Sorry, you have no authority!");
+  }
+};
+
+// ----- read -----
+
+exports.getUsers = (req, res) => {
+  if (req.authUser.role === "admin") {
+    const condition = req.query;
+    condition.search = condition.search || "";
+    condition.sort = condition.sort || {};
+    condition.sort.id = condition.sort.id || "ASC";
+    condition.limit = parseInt(condition.limit) || 5;
+    condition.offset = parseInt(condition.offset) || 0;
+    condition.page = parseInt(condition.page) || 1;
+    condition.offset = condition.page * condition.limit - condition.limit;
+
+    let pageInfo = {};
+    modelUsers.getUserByCond(condition, (error, resUser) => {
+      if (!error) {
+        modelUsers.getTotalUser(condition, (errTotal, resTotal) => {
+          if (!errTotal) {
+            const totalData = resTotal[0].count;
+            const lastPage = Math.ceil(totalData / condition.limit);
+
+            pageInfo.totalData = totalData;
+            pageInfo.currentPage = condition.page;
+            pageInfo.lastPage = lastPage;
+            pageInfo.limit = condition.limit;
+            pageInfo.nextPage =
+              condition.page < lastPage
+                ? `${APP_URL}/users/?page=${pageInfo.currentPage + 1}`
+                : null;
+            pageInfo.prevPage =
+              condition.page > 1
+                ? `${APP_URL}/users/?page=${pageInfo.currentPage - 1}`
+                : null;
+            return response(
+              res,
+              200,
+              true,
+              "Search data succesfully",
+              resUser,
+              pageInfo
+            );
+          } else {
+            return response(res, 404, false, "Data not found!", results);
+          }
+        });
+      } else {
+        response(res, 500, false, `An error occured : ${error}`);
+      }
+    });
+  } else {
+    return response(res, 400, false, "Sorry, you have no authority!");
+  }
+};
+
+exports.getProfile = (req, res) => {
+  modelUsers.getUserById(req.authUser.id, (error, results) => {
+    if (!error) {
+      if (results[0].foto !== null) {
+        results[0].foto = `${APP_URL}${results[0].foto}`;
+      }
+      return response(res, 200, true, "Get Profile successfuly!", results[0]);
+    } else {
+      return response(
+        res,
+        404,
+        false,
+        `Data not found! error : ${error.sqlMessage}`
+      );
+    }
+  });
+};
+
+exports.getUserById = (req, res) => {
+  modelUsers.getUserById(req.params.id, (error, results) => {
+    if (!error) {
+      if (results[0].foto !== null) {
+        results[0].foto = `${APP_URL}${results[0].foto}`;
+      }
+      return response(res, 200, true, "Get Profile successfuly!", results[0]);
+    } else {
+      return response(
+        res,
+        404,
+        false,
+        `Data not found! error : ${error.sqlMessage}`
+      );
+    }
+  });
+};
+
+// ----- update -----
+
+exports.updateDetailUser = (req, res) => {
+  modelUsers.getUser((error, results) => {
+    if (!error) {
+      results.map((items, idx) => {
+        modelUsers.updateDetailUser(items, (errUpdate) => {
+          if (!errUpdate) {
+            console.log(items.id);
+          } else {
+            console.log(`error update at id = ${items.id}. ${errUpdate}`);
+          }
+        });
+      });
+    } else {
+      console.log(error);
+    }
+  });
+};
+
 exports.updateProfilePart = (req, res) => {
   itemPicture(req, res, (error) => {
     if (!error) {
@@ -167,147 +318,15 @@ exports.updateUserById = (req, res) => {
   });
 };
 
-exports.getProfile = (req, res) => {
-  modelUsers.getUserById(req.authUser.id, (error, results) => {
+// ----- delete -----
+
+exports.deleteUser = (req, res) => {
+  modelUsers.deleteUser(req.params.id, (error) => {
     if (!error) {
-      if (results[0].foto !== null) {
-        results[0].foto = `${APP_URL}${results[0].foto}`;
-      }
-      return response(res, 200, true, "Get Profile successfuly!", results[0]);
-    } else {
-      return response(
-        res,
-        404,
-        false,
-        `Data not found! error : ${error.sqlMessage}`
-      );
-    }
-  });
-};
-
-exports.getUserById = (req, res) => {
-  modelUsers.getUserById(req.params.id, (error, results) => {
-    if (!error) {
-      if (results[0].foto !== null) {
-        results[0].foto = `${APP_URL}${results[0].foto}`;
-      }
-      return response(res, 200, true, "Get Profile successfuly!", results[0]);
-    } else {
-      return response(
-        res,
-        404,
-        false,
-        `Data not found! error : ${error.sqlMessage}`
-      );
-    }
-  });
-};
-
-exports.addUser = (req, res) => {
-  if (req.authUser.role === "admin") {
-    itemPicture(req, res, async (error) => {
-      if (!error) {
-        req.body.file = req.file
-          ? `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`
-          : null;
-
-        const data = req.body;
-        data.password = await bcrypt.hash(
-          data.password,
-          await bcrypt.genSalt()
-        );
-
-        modelUsers.createUserByAdmin(data, (error, results) => {
-          if (!error) {
-            if (results.affectedRows) {
-              return response(
-                res,
-                200,
-                true,
-                "Data has been inserted succesfully!"
-              );
-            } else {
-              return response(res, 400, false, "Failed to created items");
-            }
-          } else {
-            response(res, 500, false, error);
-          }
-        });
-      } else {
-        return standardResponse(res, 500, false, error);
-      }
-    });
-  } else {
-    return response(res, 400, false, "Sorry, you have no authority!");
-  }
-};
-
-exports.getUsers = (req, res) => {
-  if (req.authUser.role === "admin") {
-    const condition = req.query;
-    condition.search = condition.search || "";
-    condition.sort = condition.sort || {};
-    condition.sort.id = condition.sort.id || "ASC";
-    condition.limit = parseInt(condition.limit) || 5;
-    condition.offset = parseInt(condition.offset) || 0;
-    condition.page = parseInt(condition.page) || 1;
-    condition.offset = condition.page * condition.limit - condition.limit;
-
-    let pageInfo = {};
-    modelUsers.getUserByCond(condition, (error, resUser) => {
-      if (!error) {
-        modelUsers.getTotalUser(condition, (errTotal, resTotal) => {
-          if (!errTotal) {
-            const totalData = resTotal[0].count;
-            const lastPage = Math.ceil(totalData / condition.limit);
-
-            pageInfo.totalData = totalData;
-            pageInfo.currentPage = condition.page;
-            pageInfo.lastPage = lastPage;
-            pageInfo.limit = condition.limit;
-            pageInfo.nextPage =
-              condition.page < lastPage
-                ? `${APP_URL}/users/?page=${pageInfo.currentPage + 1}`
-                : null;
-            pageInfo.prevPage =
-              condition.page > 1
-                ? `${APP_URL}/users/?page=${pageInfo.currentPage - 1}`
-                : null;
-            return response(
-              res,
-              200,
-              true,
-              "Search data succesfully",
-              resUser,
-              pageInfo
-            );
-          } else {
-            return response(res, 404, false, "Data not found!", results);
-          }
-        });
-      } else {
-        response(res, 500, false, `An error occured : ${error}`);
-      }
-    });
-  } else {
-    return response(res, 400, false, "Sorry, you have no authority!");
-  }
-};
-
-exports.updateDetailUser = (req, res) => {
-  modelUsers.getUser((error, results) => {
-    if (!error) {
-      results.map((items, idx) => {
-        modelUsers.updateDetailUser(items, (errUpdate) => {
-          if (!errUpdate) {
-            console.log(items.id);
-          } else {
-            console.log(`error update at id = ${items.id}. ${errUpdate}`);
-          }
-        });
-      });
+      response(res, 200, true, `Data user telah dihapus.`);
     } else {
       console.log(error);
+      response(res, 500, false, `An error occured. ${error}`);
     }
   });
 };

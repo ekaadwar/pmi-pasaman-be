@@ -1,6 +1,7 @@
 const route = require("express").Router();
 const {
   addUser,
+  deleteUser,
   getProfile,
   getUsers,
   getUserById,
@@ -16,8 +17,9 @@ route.get("/profile", auth, getProfile);
 route.get("/:id", auth, getUserById);
 route.post("/", auth, addUser);
 route.patch("/", auth, updateProfilePart);
-route.patch("/update_detail_user", auth, updateDetailUser);
-route.patch("/update_id_user_detail", auth, updateIdUserDetail);
+route.patch("/delete/:id", auth, deleteUser);
+route.patch("/update_detail_user", auth, updateDetailUser); //development
+route.patch("/update_id_user_detail", auth, updateIdUserDetail); //development
 route.patch("/:id", auth, updateUserById);
 
 module.exports = route;

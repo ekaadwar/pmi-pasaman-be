@@ -12,9 +12,9 @@ exports.addBloodGroup = (data, cb) => {
 
 // ----- read -----
 
-exports.getStock = (bloodGroup, cb) => {
+exports.getStock = (cb) => {
   connection.query(
-    `SELECT id, gol_darah, masuk, keluar, total FROM ${table} WHERE gol_darah="${bloodGroup}"`,
+    `SELECT id, gol_darah, masuk, keluar, total FROM ${table}`,
     cb
   );
 };

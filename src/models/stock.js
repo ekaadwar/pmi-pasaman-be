@@ -14,8 +14,7 @@ exports.addBloodGroup = (data, cb) => {
 
 exports.getStock = (bloodGroup, cb) => {
   connection.query(
-    `SELECT id, gol_darah, masuk, keluar, total FROM ${table} WHERE gol_darah="O"`,
-    [bloodGroup],
+    `SELECT id, gol_darah, masuk, keluar, total FROM ${table} WHERE gol_darah="${bloodGroup}"`,
     cb
   );
 };
@@ -29,8 +28,10 @@ exports.getStockByBlood = (bloodGroup, cb) => {
 
 // ----- update -----
 
-// exports.updateStock = (bloodGroup, cb) => {
-//     connection.query(
-//         `UPDATE ${table} SET `
-//     )
-// }
+exports.updateStock = (data, cb) => {
+  connection.query(
+    `UPDATE ${table} SET masuk=?, total=? WHERE id=? `,
+    [data.masuk, data.total, data.id],
+    cb
+  );
+};

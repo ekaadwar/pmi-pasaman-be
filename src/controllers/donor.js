@@ -24,10 +24,15 @@ exports.addDonor = (req, res) => {
                 (errStock, resStock) => {
                   if (!errStock) {
                     if (resStock.length > 0) {
-                      const masuk = resStock[0].masuk + 1;
-                      const total = masuk - resStock[0].keluar;
+                      const income = resStock[0].masuk + 1;
+                      const total = income - resStock[0].keluar;
 
-                      const stockData = { id: resStock[0].id, masuk, total };
+                      const stockData = {
+                        id: resStock[0].id,
+                        income,
+                        expenditure: resStock[0].keluar,
+                        total,
+                      };
                       stockModels.updateStock(stockData, (errUpStok) => {
                         if (!errUpStok) {
                           response(res, 200, true, `Data telah ditambahkan`);

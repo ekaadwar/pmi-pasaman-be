@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const routeAuth = require("./src/routes/auth");
 const routeDonor = require("./src/routes/donor");
+const routeExpenditure = require("./src/routes/expenditure");
 const routeStock = require("./src/routes/stock");
 const routeUser = require("./src/routes/users");
 
@@ -23,6 +24,7 @@ app.get("/", (_req, res) => {
 });
 app.use("/auth", routeAuth);
 app.use("/donor", routeDonor);
+app.use("/expenditure", routeExpenditure);
 app.use("/stock", routeStock);
 app.use("/users", routeUser);
 

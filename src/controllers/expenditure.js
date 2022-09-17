@@ -57,6 +57,60 @@ exports.createExpenditure = (req, res) => {
 
 // ----- read -----
 
+exports.getExpenditure = (req, res) => {
+  if (req.authUser.role === "admin") {
+    expendModels.getExpenditure((error, results) => {
+      if (!error) {
+        response(res, 200, true, `Data riwayat pengeluaran:`, results);
+      } else {
+        response(
+          res,
+          500,
+          false,
+          `an error occured when get expenditure. ${error}`
+        );
+      }
+    });
+  } else {
+    response(res, 400, false, "Maaf, Anda tidak memiliki otoritas.");
+  }
+};
+
+exports.getExpendByBlood = (req, res) => {
+  if (req.authUser.role === "admin") {
+    const { bloodGroup } = req.body;
+    expendModels.getExpendByBlood(bloodGroup, (error, results) => {
+      if (!error) {
+        if (results.length > 0) {
+          response(
+            res,
+            200,
+            true,
+            `Data pengeluaran golongan darah ${bloodGroup}:`,
+            results
+          );
+        } else {
+          response(
+            res,
+            500,
+            false,
+            `Data golongan daran ${bloodGroup} tidak tersedia`
+          );
+        }
+      } else {
+        response(
+          res,
+          500,
+          false,
+          `an error occured when get expenditure. ${error}`
+        );
+      }
+    });
+  } else {
+    response(res, 400, false, "Maaf, Anda tidak memiliki otoritas.");
+  }
+};
+
 // ----- update -----
 
 // ----- delete -----

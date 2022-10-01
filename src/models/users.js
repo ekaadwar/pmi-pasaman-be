@@ -68,7 +68,15 @@ exports.getUserByCond = (cond, cb) => {
   }
   connection.query(
     `
-  SELECT ${table}.id, ${table}.nama, detail_user.email, ${table}.no_hp, ${table}.alamat, ${table}.pekerjaan, ${table}.umur, ${table}.jenis_kelamin, ${table}.gol_darah
+  SELECT 
+    ${table}.id,
+    ${table}.nama,
+    ${table}.alamat,
+    ${table}.pekerjaan,
+    ${table}.umur,
+    ${table}.no_hp,
+    ${table}.jenis_kelamin,
+    ${table}.gol_darah
   FROM ${table} 
   LEFT JOIN detail_user ON ${table}.id = detail_user.id
   WHERE ${where}
@@ -98,7 +106,7 @@ exports.getUserByBlood = (blood, cb) => {
 exports.getUserByEmail = (email, cb) => {
   connection.query(
     `
-      SELECT ${table}.id, ${table}.nama, detail_user.email, detail_user.password, detail_user.role 
+      SELECT ${table}.id, ${table}.nama, detail_user.email, detail_user.password, detail_user.role, detail_user.foto 
       FROM ${table} LEFT JOIN detail_user
       ON ${table}.id = detail_user.id
       WHERE detail_user.email=?
@@ -112,7 +120,23 @@ exports.getUserById = (id, cb) => {
   console.log(id);
   connection.query(
     `
-      SELECT ${table}.id, detail_user.foto, ${table}.nama, detail_user.email, ${table}.no_hp, ${table}.alamat, ${table}.pekerjaan, ${table}.umur, ${table}.jenis_kelamin, ${table}.gol_darah 
+      SELECT 
+        ${table}.id,
+        ${table}.nama,
+        detail_user.email,
+        ${table}.no_hp,
+        ${table}.alamat,
+        ${table}.pekerjaan,
+        ${table}.umur,
+        ${table}.jenis_kelamin,
+        ${table}.gol_darah,
+        detail_user.foto,
+        detail_user.role,
+        detail_user.status,
+        detail_user.email,
+        detail_user.tanggal_lahir,
+        detail_user.jumlah_donor,
+        detail_user.jadwal_donor
       FROM ${table} LEFT JOIN detail_user
       ON ${table}.id = detail_user.id
       WHERE ${table}.id=${id}
@@ -146,6 +170,14 @@ exports.updateIdUserDetail = (data, cb) => {
 exports.updateProfilePart = (data, cb) => {
   const sql = `UPDATE ${table} SET ${data.col}='${data.val}' WHERE id=${data.id}`;
   connection.query(sql, cb);
+};
+
+exports.updateUserDonorSchedule = (data, cb) => {
+  connection.query(
+    `UPDATE detail_user SET jadwal_donor = ? WHERE id_user=?`,
+    [data.schedule, data.id],
+    cb
+  );
 };
 
 // delete

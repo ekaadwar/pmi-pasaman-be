@@ -73,11 +73,11 @@ exports.getUsers = (req, res) => {
             pageInfo.limit = condition.limit;
             pageInfo.nextPage =
               condition.page < lastPage
-                ? `${APP_URL}/users/?page=${pageInfo.currentPage + 1}`
+                ? `${APP_URL}/users?page=${pageInfo.currentPage + 1}`
                 : null;
             pageInfo.prevPage =
               condition.page > 1
-                ? `${APP_URL}/users/?page=${pageInfo.currentPage - 1}`
+                ? `${APP_URL}/users?page=${pageInfo.currentPage - 1}`
                 : null;
             return response(
               res,

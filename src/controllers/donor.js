@@ -18,7 +18,6 @@ exports.addDonor = (req, res) => {
           };
           donorModels.addDonor(data, (errDonor) => {
             if (!errDonor) {
-              console.log(data);
               stockModels.getStockByBlood(
                 data.golDarah,
                 (errStock, resStock) => {
@@ -35,9 +34,42 @@ exports.addDonor = (req, res) => {
                       };
                       stockModels.updateStock(stockData, (errUpStok) => {
                         if (!errUpStok) {
-                          response(res, 200, true, `Data telah ditambahkan`);
+                          const today = new Date();
+                          const date = today.getDate();
+                          let month = today.getMonth() + 1;
+                          let year = today.getFullYear();
+
+                          month += 3;
+
+                          if (month > 12) {
+                            month -= 12;
+                            year += 1;
+                          }
+
+                          const schedule = `${year}-${month}-${date}`;
+                          const dataSchedule = { id: data.id, schedule };
+
+                          userModels.updateUserDonorSchedule(
+                            dataSchedule,
+                            (errSchedule) => {
+                              if (!errSchedule) {
+                                response(
+                                  res,
+                                  200,
+                                  true,
+                                  `Data telah ditambahkan`
+                                );
+                              } else {
+                                response(
+                                  res,
+                                  400,
+                                  false,
+                                  `Jadwal donor gagal diperbarui`
+                                );
+                              }
+                            }
+                          );
                         } else {
-                          console.log(errUpStok);
                           response(
                             res,
                             500,
@@ -55,19 +87,21 @@ exports.addDonor = (req, res) => {
                       );
                     }
                   } else {
-                    console.log(errStock);
                     response(res, 500, false, `An error occured. ${errStock}`);
                   }
                 }
               );
             } else {
-              console.log(errDonor);
               response(res, 500, false, `An error occured. ${errDonor}`);
             }
           });
         } else {
-          console.log("User data is not available.");
-          response(res, 404, false, "Data tidak tersedia");
+          response(
+            res,
+            404,
+            false,
+            "Data tidak tersedia. Silahkan update data Anda dengan mengisi data golongan darah."
+          );
         }
       } else {
         response(res, 500, false, `An error occured. ${error}`);
@@ -140,7 +174,7 @@ exports.getDonorByIdUser = (req, res) => {
 
 exports.getMyHistory = (req, res) => {
   const { id } = req.authUser;
-  console.log(id);
+
   userModels.getUserById(id, (err, result) => {
     if (!err) {
       if (result.length > 0) {

@@ -51,7 +51,11 @@ exports.signin = (req, res) => {
         if (compare) {
           const payload = { id: user.id, email: user.email, role: user.role };
           const token = jwt.sign(payload, process.env.APP_KEY);
-          response(res, 200, true, `Welcome ${user.nama}`, { userId, token });
+          response(res, 200, true, `Welcome ${user.nama}`, {
+            userId,
+            token,
+            photo: user.foto,
+          });
         } else {
           response(res, 400, false, "Wrong email or password");
         }

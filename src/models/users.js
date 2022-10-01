@@ -137,7 +137,7 @@ exports.getUserById = (id, cb) => {
         detail_user.tanggal_lahir,
         detail_user.jadwal_donor
       FROM ${table} LEFT JOIN detail_user
-      ON ${table}.id = detail_user.id
+      ON ${table}.id = detail_user.id_user
       WHERE ${table}.id=${id}
     `,
     cb
@@ -172,6 +172,8 @@ exports.updateProfilePart = (data, cb) => {
 };
 
 exports.updateUserDonorSchedule = (data, cb) => {
+  console.log("action");
+  console.log(data);
   connection.query(
     `UPDATE detail_user SET jadwal_donor = ? WHERE id_user=?`,
     [data.schedule, data.id],

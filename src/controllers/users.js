@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const itemPicture = require("../helpers/upload").single("picture");
 const modelUsers = require("../models/users");
+const modelDonor = require("../models/donor");
 const { response } = require("../helpers/standardResponse");
 const { APP_URL } = process.env;
 
@@ -101,12 +102,30 @@ exports.getUsers = (req, res) => {
 };
 
 exports.getProfile = (req, res) => {
-  modelUsers.getUserById(req.authUser.id, (error, results) => {
+  const id = req.authUser.id;
+  modelUsers.getUserById(id, (error, results) => {
     if (!error) {
       if (results[0].foto !== null) {
         results[0].foto = `${APP_URL}${results[0].foto}`;
       }
-      return response(res, 200, true, "Get Profile successfuly!", results[0]);
+      modelDonor.getDonorByIdUser(id, (error, resHistory) => {
+        if (!error) {
+          const jumlah_donor = resHistory.length;
+          const result = {
+            ...results[0],
+            jumlah_donor,
+          };
+          return response(res, 200, true, "Get profile successfuly!", result);
+        } else {
+          return response(
+            res,
+            404,
+            true,
+            "Error when get users history",
+            error
+          );
+        }
+      });
     } else {
       return response(
         res,
@@ -119,12 +138,34 @@ exports.getProfile = (req, res) => {
 };
 
 exports.getUserById = (req, res) => {
-  modelUsers.getUserById(req.params.id, (error, results) => {
+  const id = req.params.id;
+  modelUsers.getUserById(id, (error, results) => {
     if (!error) {
-      if (results[0].foto !== null) {
-        results[0].foto = `${APP_URL}${results[0].foto}`;
+      if (results.length > 0) {
+        if (results[0].foto !== null) {
+          results[0].foto = `${APP_URL}${results[0].foto}`;
+        }
+        modelDonor.getDonorByIdUser(id, (error, resHistory) => {
+          if (!error) {
+            const jumlah_donor = resHistory.length;
+            const result = {
+              ...results[0],
+              jumlah_donor,
+            };
+            return response(res, 200, true, "Get User successfuly!", result);
+          } else {
+            return response(
+              res,
+              404,
+              true,
+              "Error when get users history",
+              error
+            );
+          }
+        });
+      } else {
+        return response(res, 404, false, "Data not found!");
       }
-      return response(res, 200, true, "Get Profile successfuly!", results[0]);
     } else {
       return response(
         res,
@@ -165,7 +206,6 @@ exports.updateProfilePart = (req, res) => {
       modelUsers.getUserById(idUser, (error, results) => {
         if (!error) {
           if (req.file) {
-            console.log(req.file);
             if (results[0].photo !== null) {
               const fileImage = results[0].photo.split("/")[2];
               const path = `assets/images/${fileImage}`;
@@ -198,11 +238,9 @@ exports.updateProfilePart = (req, res) => {
                 if (!errorUpdate) {
                   console.log(data);
                   console.log(`${col} column has been successfully updated`);
-                  console.log(req.body);
                 } else {
                   console.log(`${col} column has been failed to update`);
                   console.log(errorUpdate);
-                  console.log(req.body);
                 }
               });
             }
@@ -226,7 +264,6 @@ exports.updateProfilePart = (req, res) => {
         }
       });
     } else {
-      console.log(error);
       return response(
         res,
         400,
@@ -246,7 +283,6 @@ exports.updateUserById = (req, res) => {
       modelUsers.getUserById(id, (error, results) => {
         if (!error) {
           if (req.file) {
-            console.log(req.file);
             if (results[0].photo !== null) {
               const fileImage = results[0].photo.split("/")[2];
               const path = `assets/images/${fileImage}`;
@@ -279,11 +315,9 @@ exports.updateUserById = (req, res) => {
                 if (!errorUpdate) {
                   console.log(data);
                   console.log(`${col} column has been successfully updated`);
-                  console.log(req.body);
                 } else {
                   console.log(`${col} column has been failed to update`);
                   console.log(errorUpdate);
-                  console.log(req.body);
                 }
               });
             }
@@ -339,13 +373,6 @@ exports.updateIdUserDetail = (req, res) => {
         const email = `${item.nama}@mail.com`;
         const data = { id: item.id, email };
         console.log(data);
-        // modelUsers.getUserByEmail(email, (error, result) => {
-        //   if (!error) {
-        //     console.log("data available");
-        //   } else {
-        //     console.log("data not available");
-        //   }
-        // });
         modelUsers.updateIdUserDetail(data, (error) => {
           if (!error) {
             console.log("id successfully updated");

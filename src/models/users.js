@@ -135,7 +135,6 @@ exports.getUserById = (id, cb) => {
         detail_user.status,
         detail_user.email,
         detail_user.tanggal_lahir,
-        detail_user.jumlah_donor,
         detail_user.jadwal_donor
       FROM ${table} LEFT JOIN detail_user
       ON ${table}.id = detail_user.id

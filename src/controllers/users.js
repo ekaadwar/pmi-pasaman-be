@@ -25,12 +25,24 @@ exports.addUser = (req, res) => {
         modelUsers.createUserByAdmin(data, (error, results) => {
           if (!error) {
             if (results.affectedRows) {
-              return response(
-                res,
-                200,
-                true,
-                "Data has been inserted succesfully!"
-              );
+              console.log(results.affectedRows);
+              modelUsers.createUserDetailByAdmin(data, (error) => {
+                if (!error) {
+                  return response(
+                    res,
+                    200,
+                    true,
+                    "Data has been inserted succesfully!"
+                  );
+                } else {
+                  return response(
+                    res,
+                    400,
+                    false,
+                    "Failed to created detail items"
+                  );
+                }
+              });
             } else {
               return response(res, 400, false, "Failed to created items");
             }

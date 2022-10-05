@@ -9,22 +9,11 @@ exports.signup = async (req, res) => {
 
   modelUsers.createUsers(data, (error) => {
     if (!error) {
-      modelUsers.getIdByPhone(data.noHp, (errId, resId) => {
-        if (!errId) {
-          const detail = {
-            ...data,
-            idUser: resId[0].id,
-          };
-          console.log(detail);
-          modelUsers.createDetailUsers(detail, (errDetail) => {
-            if (!errDetail) {
-              return response(res, 200, true, "Register successfully");
-            } else {
-              return response(res, 500, false, "Detail failed to add");
-            }
-          });
+      modelUsers.createDetailUsers(data, (errDetail) => {
+        if (!errDetail) {
+          return response(res, 200, true, "Register successfully");
         } else {
-          return response(res, 400, false, errId);
+          return response(res, 500, false, "Detail failed to add");
         }
       });
     } else {

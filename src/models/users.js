@@ -4,19 +4,24 @@ const table = "user";
 // ----- create -----
 exports.createUserByAdmin = (data, cb) => {
   connection.query(
-    `INSERT INTO ${table} (foto, nama, email, no_hp, password, alamat, pekerjaan, umur, jenis_kelamin, gol_darah ) VALUES(?, ?, ?, ?, ?,?,?,?,?,?)`,
+    `INSERT INTO ${table}  (nama,  no_hp, alamat, pekerjaan, umur, jenis_kelamin, gol_darah ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [
-      data.foto,
       data.nama,
-      data.email,
       data.no_hp,
-      data.password,
       data.alamat,
       data.pekerjaan,
       data.umur,
       data.jenis_kelamin,
       data.gol_darah,
     ],
+    cb
+  );
+};
+
+exports.createUserDetailByAdmin = (data, cb) => {
+  connection.query(
+    `INSERT INTO detail_user  (foto, id_user, email, password) VALUES(?, LAST_INSERT_ID(), ?, ?)`,
+    [data.foto, data.email, data.password],
     cb
   );
 };
@@ -29,10 +34,18 @@ exports.createUsers = (data, cb) => {
   );
 };
 
+// exports.createDetailUsers = (data, cb) => {
+//   connection.query(
+//     `INSERT INTO detail_user (id_user, email, password) VALUES(?,?,?)`,
+//     [data.idUser, data.email, data.password],
+//     cb
+//   );
+// };
+
 exports.createDetailUsers = (data, cb) => {
   connection.query(
-    `INSERT INTO detail_user (id_user, email, password) VALUES(?,?,?)`,
-    [data.idUser, data.email, data.password],
+    `INSERT INTO detail_user (id_user, email, password) VALUES ( LAST_INSERT_ID(), ?, ?)`,
+    [data.email, data.password],
     cb
   );
 };

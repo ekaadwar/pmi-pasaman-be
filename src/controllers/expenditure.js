@@ -18,8 +18,8 @@ exports.createExpenditure = (req, res) => {
           } else {
             expendModels.createExpenditure(data, (error) => {
               if (!error) {
-                const expenditure = stock.keluar + data.amount;
-                const total = stock.masuk - expenditure;
+                const expenditure = Number(stock.keluar) + Number(data.amount);
+                const total = Number(stock.masuk) - expenditure;
                 const dataStock = {
                   id: stock.id,
                   income: stock.masuk,
@@ -28,6 +28,7 @@ exports.createExpenditure = (req, res) => {
                 };
                 stockModels.updateStock(dataStock, (errUpdate) => {
                   if (!errUpdate) {
+                    console.log(dataStock.expenditure);
                     response(res, 200, true, "Data telah ditambahkan");
                   } else {
                     response(res, 500, false, `An error occure. ${error}`);

@@ -105,6 +105,7 @@ exports.getUsers = (req, res) => {
           }
         });
       } else {
+        console.log(error);
         response(res, 500, false, `An error occured : ${error}`);
       }
     });

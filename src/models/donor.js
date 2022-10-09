@@ -15,14 +15,20 @@ exports.addDonor = (data, cb) => {
 
 exports.getDonorByIdUser = (id, cb) => {
   connection.query(
-    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id WHERE id_user=${id}`,
+    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id WHERE id_user=${id} AND status = "active"`,
     cb
   );
 };
 
 exports.getDonorData = (cb) => {
   connection.query(
-    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id`,
+    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id WHERE status = "active"`,
     cb
   );
+};
+
+// delete
+
+exports.deleteDonorHistory = (id, cb) => {
+  connection.query(`UPDATE ${table} SET status="inactive" WHERE id=${id}`, cb);
 };

@@ -75,6 +75,8 @@ exports.getUserByCond = (cond, cb) => {
   console.log(cond);
   const orderBy = Object.keys(cond.sort)[0];
   const sort = cond.sort[orderBy];
+  const category = cond.category || null;
+  console.log(category);
   let where = `${table}.nama LIKE '%${cond.search}%'`;
   if (cond.blood) {
     where += ` AND ${table}.gol_darah = "${cond.blood}"`;
@@ -92,7 +94,7 @@ exports.getUserByCond = (cond, cb) => {
     ${table}.gol_darah
   FROM ${table} 
   LEFT JOIN detail_user ON ${table}.id = detail_user.id
-  WHERE ${where}
+  WHERE ${where} AND detail_user.status = "active" AND detail_user.role = "user"
   ORDER BY ${table}.${orderBy} ${sort}
   LIMIT ? OFFSET ?`,
     [cond.limit, cond.offset],

@@ -6,5 +6,6 @@ route.get("/", auth, donorController.getDonorData);
 route.get("/my_history", auth, donorController.getMyHistory);
 route.get("/:id", auth, donorController.getDonorByIdUser);
 route.post("/", auth, donorController.addDonor);
+route.patch("/delete/:id", auth, donorController.deleteDonorHistory);
 
 module.exports = route;

@@ -202,3 +202,16 @@ exports.getMyHistory = (req, res) => {
     }
   });
 };
+
+// ----- delete -----
+
+exports.deleteDonorHistory = (req, res) => {
+  donorModels.deleteDonorHistory(req.params.id, (error) => {
+    if (!error) {
+      response(res, 200, true, `Riwayat donor telah dihapus.`);
+    } else {
+      console.log(error);
+      response(res, 500, false, `An error occured. ${error}`);
+    }
+  });
+};

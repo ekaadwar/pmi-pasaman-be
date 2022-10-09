@@ -115,3 +115,14 @@ exports.getExpendByBlood = (req, res) => {
 // ----- update -----
 
 // ----- delete -----
+
+exports.deleteExpenditureHistory = (req, res) => {
+  expendModels.deleteExpenditureHistory(req.params.id, (error) => {
+    if (!error) {
+      response(res, 200, true, `Riwayat pengeluaran telah dihapus.`);
+    } else {
+      console.log(error);
+      response(res, 500, false, `An error occured. ${error}`);
+    }
+  });
+};

@@ -106,7 +106,6 @@ exports.getUsers = (req, res) => {
           }
         });
       } else {
-        console.log(error);
         response(res, 500, false, `An error occured : ${error}`);
       }
     });
@@ -162,8 +161,6 @@ exports.getUserById = (req, res) => {
         modelDonor.getDonorByIdUser(id, (error, resHistory) => {
           if (!error) {
             const jumlah_donor = resHistory.length;
-
-            console.log(results[0]);
             const result = {
               ...results[0],
               jumlah_donor,
@@ -357,7 +354,6 @@ exports.updateUserById = (req, res) => {
         }
       });
     } else {
-      console.log(error);
       return response(
         res,
         400,
@@ -375,7 +371,6 @@ exports.deleteUser = (req, res) => {
     if (!error) {
       response(res, 200, true, `Data user telah dihapus.`);
     } else {
-      console.log(error);
       response(res, 500, false, `An error occured. ${error}`);
     }
   });

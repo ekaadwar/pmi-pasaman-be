@@ -121,7 +121,7 @@ exports.getUserByEmail = (email, cb) => {
     `
       SELECT ${table}.id, ${table}.nama, detail_user.email, detail_user.password, detail_user.role, detail_user.foto 
       FROM ${table} LEFT JOIN detail_user
-      ON ${table}.id = detail_user.id
+      ON ${table}.id = detail_user.id_user
       WHERE detail_user.email=?
     `,
     [email],

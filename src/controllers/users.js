@@ -78,6 +78,7 @@ exports.getUsers = (req, res) => {
         modelUsers.getTotalUser(condition, (errTotal, resTotal) => {
           if (!errTotal) {
             const totalData = resTotal[0].count;
+            console.log(resTotal);
             const lastPage = Math.ceil(totalData / condition.limit);
 
             pageInfo.totalData = totalData;

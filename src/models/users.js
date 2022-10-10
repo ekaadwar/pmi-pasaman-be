@@ -107,7 +107,7 @@ exports.getUserByBlood = (blood, cb) => {
     `
   SELECT ${table}.id, ${table}.nama, detail_user.email, ${table}.no_hp, ${table}.alamat, ${table}.pekerjaan, ${table}.umur, ${table}.jenis_kelamin, ${table}.gol_darah
   FROM ${table} 
-  LEFT JOIN detail_user ON ${table}.id = detail_user.id
+  LEFT JOIN detail_user ON ${table}.id = detail_user.id_user
   WHERE ${table}.nama LIKE '%${cond.search}%' AND ${table}.gol_darah = "A"
   ORDER BY ${table}.${orderBy} ${sort}
   LIMIT ? OFFSET ?`,

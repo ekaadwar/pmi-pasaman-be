@@ -46,19 +46,30 @@ exports.addBloodGroup = (req, res) => {
 // read
 
 exports.getStock = (req, res) => {
-  if (req.authUser.role === "admin") {
-    stockModels.getStock((error, results) => {
-      if (!error) {
-        if (results.length > 0) {
-          response(res, 200, true, "Blood Stock", results);
-        } else {
-          response(res, 404, false, "Data not found");
-        }
+  // if (req.authUser.role === "admin") {
+  //   stockModels.getStock((error, results) => {
+  //     if (!error) {
+  //       if (results.length > 0) {
+  //         response(res, 200, true, "Blood Stock", results);
+  //       } else {
+  //         response(res, 404, false, "Data not found");
+  //       }
+  //     } else {
+  //       response(res, 500, false, error);
+  //     }
+  //   });
+  // } else {
+  //   response(res, 400, false, "You have no authority");
+  // }
+  stockModels.getStock((error, results) => {
+    if (!error) {
+      if (results.length > 0) {
+        response(res, 200, true, "Blood Stock", results);
       } else {
-        response(res, 500, false, error);
+        response(res, 404, false, "Data not found");
       }
-    });
-  } else {
-    response(res, 400, false, "You have no authority");
-  }
+    } else {
+      response(res, 500, false, error);
+    }
+  });
 };

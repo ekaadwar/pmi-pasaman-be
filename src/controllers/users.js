@@ -438,7 +438,7 @@ exports.deleteUser = (req, res) => {
   });
 };
 
-// development
+// ----- development -----
 exports.updateIdUserDetail = (req, res) => {
   modelUsers.getUserIdAndName((error, result) => {
     if (!error) {

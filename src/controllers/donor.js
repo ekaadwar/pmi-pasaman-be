@@ -178,7 +178,7 @@ exports.getMyHistory = (req, res) => {
   userModels.getUserById(id, (err, result) => {
     if (!err) {
       if (result.length > 0) {
-        donorModels.getDonorByIdUser(id, (error, results) => {
+        donorModels.getMyDonor(id, (error, results) => {
           if (!error) {
             if (results.length > 0) {
               response(res, 200, true, `Data riwayat donor Anda`, results);

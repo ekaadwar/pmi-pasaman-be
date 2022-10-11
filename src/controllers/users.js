@@ -3,7 +3,9 @@ const fs = require("fs");
 const itemPicture = require("../helpers/upload").single("picture");
 const modelUsers = require("../models/users");
 const modelDonor = require("../models/donor");
+const getAge = require("../helpers/getAge");
 const { response } = require("../helpers/standardResponse");
+const { UTF8MB4_TURKISH_CI } = require("mysql/lib/protocol/constants/charsets");
 const { APP_URL } = process.env;
 
 // ----- create -----
@@ -247,15 +249,45 @@ exports.updateProfilePart = (req, res) => {
               const val = value[i];
               const data = { id, col, val };
 
-              modelUsers.updateProfilePart(data, (errorUpdate) => {
-                if (!errorUpdate) {
-                  console.log(data);
-                  console.log(`${col} column has been successfully updated`);
-                } else {
-                  console.log(`${col} column has been failed to update`);
-                  console.log(errorUpdate);
-                }
-              });
+              if (
+                col === "nama" ||
+                col === "no_hp" ||
+                col === "alamat" ||
+                col === "pekerjaan" ||
+                col === "umur" ||
+                col === "jenis_kelamin" ||
+                col === "gol_darah"
+              ) {
+                modelUsers.updateProfilePart(data, (errorUpdate) => {
+                  if (!errorUpdate) {
+                    console.log(`${col} column has been successfully updated`);
+                  } else {
+                    console.log(`${col} column has been failed to update`);
+                  }
+                });
+              } else {
+                modelUsers.updateProfileDetail(data, (errorUpdate) => {
+                  if (!errorUpdate) {
+                    if (col === "tanggal_lahir") {
+                      const age = getAge(val);
+                      const ageData = {
+                        id,
+                        col: "umur",
+                        val: age,
+                      };
+
+                      modelUsers.updateProfilePart(ageData, (errorAge) => {
+                        if (errorAge) {
+                          console.log("umur has beed fail to update");
+                        }
+                      });
+                    }
+                    console.log(`${col} column has been successfully updated`);
+                  } else {
+                    console.log(`${col} column has been failed to update`);
+                  }
+                });
+              }
             }
 
             return response(
@@ -293,7 +325,7 @@ exports.updateUserById = (req, res) => {
       const { id: idUser } = req.params;
       const id = parseInt(idUser);
 
-      modelUsers.getUserById(id, (error, results) => {
+      modelUsers.getUserById(idUser, (error, results) => {
         if (!error) {
           if (req.file) {
             if (results[0].photo !== null) {
@@ -324,15 +356,45 @@ exports.updateUserById = (req, res) => {
               const val = value[i];
               const data = { id, col, val };
 
-              modelUsers.updateProfilePart(data, (errorUpdate) => {
-                if (!errorUpdate) {
-                  console.log(data);
-                  console.log(`${col} column has been successfully updated`);
-                } else {
-                  console.log(`${col} column has been failed to update`);
-                  console.log(errorUpdate);
-                }
-              });
+              if (
+                col === "nama" ||
+                col === "no_hp" ||
+                col === "alamat" ||
+                col === "pekerjaan" ||
+                col === "umur" ||
+                col === "jenis_kelamin" ||
+                col === "gol_darah"
+              ) {
+                modelUsers.updateProfilePart(data, (errorUpdate) => {
+                  if (!errorUpdate) {
+                    console.log(`${col} column has been successfully updated`);
+                  } else {
+                    console.log(`${col} column has been failed to update`);
+                  }
+                });
+              } else {
+                modelUsers.updateProfileDetail(data, (errorUpdate) => {
+                  if (!errorUpdate) {
+                    if (col === "tanggal_lahir") {
+                      const age = getAge(val);
+                      const ageData = {
+                        id,
+                        col: "umur",
+                        val: age,
+                      };
+
+                      modelUsers.updateProfilePart(ageData, (errorAge) => {
+                        if (errorAge) {
+                          console.log("umur has beed fail to update");
+                        }
+                      });
+                    }
+                    console.log(`${col} column has been successfully updated`);
+                  } else {
+                    console.log(`${col} column has been failed to update`);
+                  }
+                });
+              }
             }
 
             return response(
@@ -383,7 +445,6 @@ exports.updateIdUserDetail = (req, res) => {
       result.map((item) => {
         const email = `${item.nama}@mail.com`;
         const data = { id: item.id, email };
-        console.log(data);
         modelUsers.updateIdUserDetail(data, (error) => {
           if (!error) {
             console.log("id successfully updated");

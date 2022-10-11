@@ -92,7 +92,7 @@ exports.getUserByCond = (cond, cb) => {
     ${table}.gol_darah
   FROM ${table} 
   LEFT JOIN detail_user ON ${table}.id = detail_user.id_user
-  WHERE ${where} AND detail_user.status = "active"
+  WHERE ${where} AND detail_user.status = "active" AND detail_user.role = "user"
   ORDER BY ${table}.${orderBy} ${sort}
   LIMIT ? OFFSET ?`,
     [cond.limit, cond.offset],
@@ -180,6 +180,11 @@ exports.updateIdUserDetail = (data, cb) => {
 
 exports.updateProfilePart = (data, cb) => {
   const sql = `UPDATE ${table} SET ${data.col}='${data.val}' WHERE id=${data.id}`;
+  connection.query(sql, cb);
+};
+
+exports.updateProfileDetail = (data, cb) => {
+  const sql = `UPDATE detail_user SET ${data.col}='${data.val}' WHERE id_user=${data.id}`;
   connection.query(sql, cb);
 };
 

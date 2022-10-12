@@ -46,21 +46,6 @@ exports.addBloodGroup = (req, res) => {
 // read
 
 exports.getStock = (req, res) => {
-  // if (req.authUser.role === "admin") {
-  //   stockModels.getStock((error, results) => {
-  //     if (!error) {
-  //       if (results.length > 0) {
-  //         response(res, 200, true, "Blood Stock", results);
-  //       } else {
-  //         response(res, 404, false, "Data not found");
-  //       }
-  //     } else {
-  //       response(res, 500, false, error);
-  //     }
-  //   });
-  // } else {
-  //   response(res, 400, false, "You have no authority");
-  // }
   stockModels.getStock((error, results) => {
     if (!error) {
       if (results.length > 0) {
@@ -72,4 +57,51 @@ exports.getStock = (req, res) => {
       response(res, 500, false, error);
     }
   });
+};
+
+// ----- update -----
+
+exports.updateBloodStock = (req, res) => {
+  const { bloodGroup, income, expenditure } = req.body;
+  let validation = true;
+
+  let total = [];
+  for (let i = 0; i < bloodGroup.length; i++) {
+    bloodGroup[i] = bloodGroup[i].toUpperCase();
+    income[i] = Number(income[i]);
+    expenditure[i] = Number(expenditure[i]);
+    total[i] = income[i] - expenditure[i];
+    if (total[i] < 0) {
+      validation = false;
+    }
+  }
+
+  if (validation === true) {
+    for (let i = 0; i < bloodGroup.length; i++) {
+      const data = {
+        bloodGroup: bloodGroup[i],
+        income: income[i],
+        expenditure: expenditure[i],
+        total: total[i],
+      };
+
+      stockModels.updateStockByBlood(data, (error) => {
+        if (!error) {
+          console.log(`Data golongan darah ${bloodGroup[i]} telah diperbarui`);
+        } else {
+          console.log(error);
+        }
+      });
+    }
+
+    const message = `Data golongan darah telah diperbarui`;
+    return response(res, 200, true, message);
+  } else {
+    return response(
+      res,
+      400,
+      false,
+      "Jumlah pengeluaran melebihi jumlah pemasukan."
+    );
+  }
 };

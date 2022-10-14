@@ -9,7 +9,7 @@ const routeStock = require("./src/routes/stock");
 const routeUser = require("./src/routes/users");
 
 const { APP_UPLOAD_ROUTE, APP_UPLOAD_PATH } = process.env;
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5556;
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -29,5 +29,5 @@ app.use("/stock", routeStock);
 app.use("/users", routeUser);
 
 app.listen(port, () => {
-  console.log("App is running in port 8080");
+  console.log(`App is running in port ${port}`);
 });

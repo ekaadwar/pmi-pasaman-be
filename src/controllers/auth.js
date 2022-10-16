@@ -1,7 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { kirimEmail } = require("../helpers/email");
 const { response } = require("../helpers/standardResponse");
 const modelUsers = require("../models/users");
+const modelAuth = require("../models/auth");
 
 exports.signup = async (req, res) => {
   const data = req.body;
@@ -53,6 +55,68 @@ exports.signin = (req, res) => {
       }
     } else {
       response(res, 500, false, "An error occured");
+    }
+  });
+};
+
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body;
+  modelUsers.getUserByEmail(email, async (error, results) => {
+    if (!error) {
+      if (results.length > 0) {
+        // console.log(results);
+        modelAuth.getDataByIdUser(results[0].id, (err, count) => {
+          if (!err) {
+            if (count.length > 0) {
+              modelAuth.deleteDataById(count[0].id, (err) => {
+                if (!err) {
+                  console.log("ok");
+                } else {
+                  console.log("token lama gagal di hapus");
+                }
+              });
+            }
+          } else {
+            console.log(err);
+          }
+        });
+
+        const forgotToken = await bcrypt.hash(
+          results[0].id.toString(),
+          await bcrypt.genSalt()
+        );
+
+        const templateEmail = {
+          from: "PMI Pasaman",
+          to: email,
+          subject: "Link Reset Password",
+          html: `<p>Silahkan klik link di bawah ini untuk reset password Anda.</p><p>${process.env.APP_URL}/resetpassword/${forgotToken}</p>`,
+        };
+
+        const forgotData = {
+          id: results[0].id,
+          token: forgotToken,
+        };
+
+        modelAuth.addData(forgotData, (err) => {
+          if (!err) {
+            kirimEmail(templateEmail);
+            return response(
+              res,
+              200,
+              true,
+              `Link reset password berhasil di kirim`
+            );
+          } else {
+            console.log(err);
+            return response(res, 404, false, "token gagal disimpan");
+          }
+        });
+      } else {
+        return response(res, 404, false, "Email tidak tersedia");
+      }
+    } else {
+      return response(res, 500, false, `An error ocured. ${error}`);
     }
   });
 };

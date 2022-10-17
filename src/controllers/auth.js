@@ -90,7 +90,7 @@ exports.forgotPassword = (req, res) => {
           from: "PMI Pasaman",
           to: email,
           subject: "Link Reset Password",
-          html: `<p>Silahkan klik link di bawah ini untuk reset password Anda.</p><p>${process.env.APP_URL}/resetpassword/${forgotToken}</p>`,
+          html: `<p>Silahkan klik link di bawah ini untuk reset password Anda.</p><p>${process.env.APP_URL}/auth/resetpassword/${forgotToken}</p>`,
         };
 
         const forgotData = {
@@ -119,4 +119,9 @@ exports.forgotPassword = (req, res) => {
       return response(res, 500, false, `An error ocured. ${error}`);
     }
   });
+};
+
+exports.resetPassword = (req, res) => {
+  const { token } = req.params;
+  console.log(token);
 };

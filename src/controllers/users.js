@@ -111,38 +111,32 @@ exports.getUsers = (req, res) => {
     condition.offset = condition.page * condition.limit - condition.limit;
 
     let pageInfo = {};
+
     modelUsers.getUserByCond(condition, (error, resUser) => {
       if (!error) {
-        modelUsers.getTotalUser(condition, (errTotal, resTotal) => {
-          if (!errTotal) {
-            const totalData = resTotal[0].count;
-            console.log(resTotal);
-            const lastPage = Math.ceil(totalData / condition.limit);
+        const totalData = resUser.length;
+        const lastPage = Math.ceil(totalData / condition.limit);
 
-            pageInfo.totalData = totalData;
-            pageInfo.currentPage = condition.page;
-            pageInfo.lastPage = lastPage;
-            pageInfo.limit = condition.limit;
-            pageInfo.nextPage =
-              condition.page < lastPage
-                ? `${APP_URL}/users?page=${pageInfo.currentPage + 1}`
-                : null;
-            pageInfo.prevPage =
-              condition.page > 1
-                ? `${APP_URL}/users?page=${pageInfo.currentPage - 1}`
-                : null;
-            return response(
-              res,
-              200,
-              true,
-              "Search data succesfully",
-              resUser,
-              pageInfo
-            );
-          } else {
-            return response(res, 404, false, "Data not found!", results);
-          }
-        });
+        pageInfo.totalData = totalData;
+        pageInfo.currentPage = condition.page;
+        pageInfo.lastPage = lastPage;
+        pageInfo.limit = condition.limit;
+        pageInfo.nextPage =
+          condition.page < lastPage
+            ? `${APP_URL}/users?page=${pageInfo.currentPage + 1}`
+            : null;
+        pageInfo.prevPage =
+          condition.page > 1
+            ? `${APP_URL}/users?page=${pageInfo.currentPage - 1}`
+            : null;
+        return response(
+          res,
+          200,
+          true,
+          "Search data succesfully",
+          resUser,
+          pageInfo
+        );
       } else {
         response(res, 500, false, `An error occured : ${error}`);
       }

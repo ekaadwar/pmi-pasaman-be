@@ -89,11 +89,14 @@ exports.getUserByCond = (cond, cb) => {
     ${table}.umur,
     ${table}.no_hp,
     ${table}.jenis_kelamin,
-    ${table}.gol_darah
+    ${table}.gol_darah,
+    detail_user.jadwal_donor
   FROM ${table} 
   LEFT JOIN detail_user ON ${table}.id = detail_user.id_user
   WHERE ${where} AND detail_user.status = "active" AND detail_user.role = "user"
-  ORDER BY ${table}.${orderBy} ${sort}
+  ORDER BY ${
+    orderBy === "jadwal_donor" ? "detail_user" : table
+  }.${orderBy} ${sort}
   LIMIT ? OFFSET ?`,
     [cond.limit, cond.offset],
     cb

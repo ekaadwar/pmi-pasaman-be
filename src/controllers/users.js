@@ -24,18 +24,54 @@ exports.addUser = (req, res) => {
           await bcrypt.genSalt()
         );
 
+        data.tanggalLahir = new Date(data.tanggalLahir);
+
         modelUsers.createUserByAdmin(data, (error, results) => {
           if (!error) {
             if (results.affectedRows) {
-              console.log(results.affectedRows);
               modelUsers.createUserDetailByAdmin(data, (error) => {
                 if (!error) {
-                  return response(
-                    res,
-                    200,
-                    true,
-                    "Data has been inserted succesfully!"
-                  );
+                  const today = new Date();
+                  const birthDay = data.tanggalLahir;
+                  const thisYear = today.getFullYear();
+                  const thisMonth = today.getMonth() + 1;
+                  const thisDate = today.getDate();
+                  const birthYear = birthDay.getFullYear();
+                  const birthMonth = birthDay.getMonth() + 1;
+                  const birthDate = birthDay.getDate();
+
+                  let age = thisYear - birthYear;
+                  if (thisMonth < birthMonth) {
+                    age -= 1;
+                  } else if (thisMonth === birthMonth) {
+                    if (thisDate < birthDate) {
+                      age -= 1;
+                    }
+                  }
+
+                  const ageData = {
+                    col: "umur",
+                    val: age,
+                    id: results.insertId,
+                  };
+
+                  modelUsers.updateProfilePart(ageData, (error) => {
+                    if (error) {
+                      return response(
+                        res,
+                        400,
+                        false,
+                        "Terjadi error saat update Umur!"
+                      );
+                    } else {
+                      return response(
+                        res,
+                        200,
+                        true,
+                        "Data has been inserted succesfully!"
+                      );
+                    }
+                  });
                 } else {
                   return response(
                     res,

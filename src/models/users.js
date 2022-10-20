@@ -20,8 +20,8 @@ exports.createUserByAdmin = (data, cb) => {
 
 exports.createUserDetailByAdmin = (data, cb) => {
   connection.query(
-    `INSERT INTO detail_user  (foto, id_user, email, password) VALUES(?, LAST_INSERT_ID(), ?, ?)`,
-    [data.foto, data.email, data.password],
+    `INSERT INTO detail_user  (foto, id_user, email, password, tanggal_lahir) VALUES(?, LAST_INSERT_ID(), ?, ?, ?)`,
+    [data.foto, data.email, data.password, data.tanggalLahir],
     cb
   );
 };

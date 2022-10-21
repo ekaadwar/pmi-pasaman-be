@@ -2,6 +2,7 @@ const { response } = require("../helpers/standardResponse");
 const donorModels = require("../models/donor");
 const stockModels = require("../models/stock");
 const userModels = require("../models/users");
+const { APP_URL } = process.env;
 
 // ----- create -----
 
@@ -124,22 +125,29 @@ exports.getDonorData = (req, res) => {
 
     donorModels.getDonorData(condition, (error, results) => {
       if (!error) {
-        const totalData = results.length;
-        const lastPage = Math.ceil(totalData / condition.limit);
+        donorModels.getDonorTotal((error, total) => {
+          if (!error) {
+            const totalData = total[0].count;
+            const lastPage = Math.ceil(totalData / condition.limit);
 
-        pageInfo.totalData = totalData;
-        pageInfo.currentPage = condition.page;
-        pageInfo.lastPage = lastPage;
-        pageInfo.limit = condition.limit;
-        pageInfo.nextPage =
-          condition.page < lastPage
-            ? `${APP_URL}/donor?page=${pageInfo.currentPage + 1}`
-            : null;
-        pageInfo.prevPage =
-          condition.page > 1
-            ? `${APP_URL}/donor?page=${pageInfo.currentPage - 1}`
-            : null;
-        response(res, 200, true, "Riwayat donor", results, pageInfo);
+            pageInfo.totalData = totalData;
+            pageInfo.currentPage = condition.page;
+            pageInfo.lastPage = lastPage;
+            pageInfo.limit = condition.limit;
+            pageInfo.nextPage =
+              condition.page < lastPage
+                ? `${APP_URL}/donor?page=${pageInfo.currentPage + 1}`
+                : null;
+            pageInfo.prevPage =
+              condition.page > 1
+                ? `${APP_URL}/donor?page=${pageInfo.currentPage - 1}`
+                : null;
+            response(res, 200, true, "Riwayat donor", results, pageInfo);
+          } else {
+            console.log(error);
+            response(res, 400, true, "gagal menghitung total data");
+          }
+        });
       } else {
         console.log(error);
         response(res, 500, false, `an error occured. ${error}`);

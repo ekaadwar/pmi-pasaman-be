@@ -5,7 +5,6 @@ const modelUsers = require("../models/users");
 const modelDonor = require("../models/donor");
 const getAge = require("../helpers/getAge");
 const { response } = require("../helpers/standardResponse");
-const { UTF8MB4_TURKISH_CI } = require("mysql/lib/protocol/constants/charsets");
 const { APP_URL } = process.env;
 
 // ----- create -----

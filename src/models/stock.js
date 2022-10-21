@@ -28,6 +28,14 @@ exports.getStockByBlood = (bloodGroup, cb) => {
 
 // ----- update -----
 
+exports.updateStock = (data, cb) => {
+  connection.query(
+    `UPDATE ${table} SET masuk=?, keluar=?, total=? WHERE id=? `,
+    [data.income, data.expenditure, data.total, data.id],
+    cb
+  );
+};
+
 exports.updateStockByBlood = (data, cb) => {
   connection.query(
     `UPDATE ${table} SET masuk=?, keluar=?, total=? WHERE gol_darah=? `,

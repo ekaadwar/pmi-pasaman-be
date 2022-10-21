@@ -1,7 +1,8 @@
 const { response } = require("../helpers/standardResponse");
 const expendModels = require("../models/expenditure");
-const userModels = require("../models/users");
 const stockModels = require("../models/stock");
+
+const { APP_URL } = process.env;
 
 // ----- create -----
 
@@ -60,9 +61,43 @@ exports.createExpenditure = (req, res) => {
 
 exports.getExpenditure = (req, res) => {
   if (req.authUser.role === "admin") {
-    expendModels.getExpenditure((error, results) => {
+    const condition = req.query;
+    condition.limit = parseInt(condition.limit) || 20;
+    condition.offset = parseInt(condition.offset) || 0;
+    condition.page = parseInt(condition.page) || 1;
+    condition.offset = condition.page * condition.limit - condition.limit;
+    let pageInfo = {};
+    expendModels.getExpenditure(condition, (error, results) => {
       if (!error) {
-        response(res, 200, true, `Data riwayat pengeluaran:`, results);
+        expendModels.getExpendTotal((error, total) => {
+          if (!error) {
+            const totalData = total[0].count;
+            const lastPage = Math.ceil(totalData / condition.limit);
+
+            pageInfo.totalData = totalData;
+            pageInfo.currentPage = condition.page;
+            pageInfo.lastPage = lastPage;
+            pageInfo.limit = condition.limit;
+            pageInfo.nextPage =
+              condition.page < lastPage
+                ? `${APP_URL}/donor?page=${pageInfo.currentPage + 1}`
+                : null;
+            pageInfo.prevPage =
+              condition.page > 1
+                ? `${APP_URL}/donor?page=${pageInfo.currentPage - 1}`
+                : null;
+            response(
+              res,
+              200,
+              true,
+              `Data riwayat pengeluaran:`,
+              results,
+              pageInfo
+            );
+          } else {
+            response(res, 400, false, `An error occure when get total data`);
+          }
+        });
       } else {
         response(
           res,

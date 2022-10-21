@@ -13,9 +13,12 @@ exports.createExpenditure = (data, cb) => {
 
 // ----- read -----
 
-exports.getExpenditure = (cb) => {
+exports.getExpenditure = (condition, cb) => {
   connection.query(
-    `SELECT id, gol_darah, jumlah, penerima, created_at FROM ${table} WHERE status = 'active'`,
+    `SELECT id, gol_darah, jumlah, penerima, created_at FROM ${table} 
+    WHERE status = "active"
+    LIMIT ? OFFSET ?`,
+    [condition.limit, condition.offset],
     cb
   );
 };
@@ -24,6 +27,13 @@ exports.getExpendByBlood = (blood, cb) => {
   connection.query(
     `SELECT id, gol_darah, jumlah, penerima, created_at FROM ${table} WHERE gol_darah = ? AND status = 'active`,
     [blood],
+    cb
+  );
+};
+
+exports.getExpendTotal = (cb) => {
+  connection.query(
+    `SELECT COUNT(${table}.id) as count FROM ${table} WHERE ${table}.status = "active"`,
     cb
   );
 };

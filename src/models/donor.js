@@ -40,9 +40,7 @@ exports.getDonorData = (condition, cb) => {
 
 exports.getDonorTotal = (cb) => {
   connection.query(
-    `SELECT COUNT(${table}.id) as count FROM ${table} 
-    LEFT JOIN detail_user ON ${table}.id_user = detail_user.id_user
-    WHERE detail_user.status = "active"`,
+    `SELECT COUNT(${table}.id) as count FROM ${table} WHERE ${table}.status = "active"`,
     cb
   );
 };

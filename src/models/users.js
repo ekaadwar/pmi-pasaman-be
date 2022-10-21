@@ -61,8 +61,12 @@ exports.getIdByPhone = (noHp, cb) => {
 };
 
 exports.getTotalUser = (cond, cb) => {
+  let whereVar = `${table}.nama LIKE '%${cond.search}%' `;
+  if (cond.blood) {
+    whereVar += `AND ${table}.gol_darah = '${cond.blood}' `;
+  }
   connection.query(
-    `SELECT COUNT(${table}.id) as count FROM ${table} LEFT JOIN detail_user ON ${table}.id = detail_user.id_user WHERE ${table}.nama LIKE '%${cond.search}%' AND detail_user.status = "active" AND detail_user.role = "user";`,
+    `SELECT COUNT(${table}.id) as count FROM ${table} LEFT JOIN detail_user ON ${table}.id = detail_user.id_user WHERE ${whereVar} AND detail_user.status = "active" AND detail_user.role = "user";`,
     cb
   );
 };

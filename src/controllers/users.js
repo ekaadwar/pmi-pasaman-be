@@ -114,29 +114,35 @@ exports.getUsers = (req, res) => {
 
     modelUsers.getUserByCond(condition, (error, resUser) => {
       if (!error) {
-        const totalData = resUser.length;
-        const lastPage = Math.ceil(totalData / condition.limit);
+        modelUsers.getTotalUser(condition, (errTotal, resTotal) => {
+          if (!errTotal) {
+            const totalData = resTotal[0].count;
+            const lastPage = Math.ceil(totalData / condition.limit);
 
-        pageInfo.totalData = totalData;
-        pageInfo.currentPage = condition.page;
-        pageInfo.lastPage = lastPage;
-        pageInfo.limit = condition.limit;
-        pageInfo.nextPage =
-          condition.page < lastPage
-            ? `${APP_URL}/users?page=${pageInfo.currentPage + 1}`
-            : null;
-        pageInfo.prevPage =
-          condition.page > 1
-            ? `${APP_URL}/users?page=${pageInfo.currentPage - 1}`
-            : null;
-        return response(
-          res,
-          200,
-          true,
-          "Search data succesfully",
-          resUser,
-          pageInfo
-        );
+            pageInfo.totalData = totalData;
+            pageInfo.currentPage = condition.page;
+            pageInfo.lastPage = lastPage;
+            pageInfo.limit = condition.limit;
+            pageInfo.nextPage =
+              condition.page < lastPage
+                ? `${APP_URL}/users?page=${pageInfo.currentPage + 1}`
+                : null;
+            pageInfo.prevPage =
+              condition.page > 1
+                ? `${APP_URL}/users?page=${pageInfo.currentPage - 1}`
+                : null;
+            return response(
+              res,
+              200,
+              true,
+              "Search data succesfully",
+              resUser,
+              pageInfo
+            );
+          } else {
+            return response(res, 404, false, "Data not found!", results);
+          }
+        });
       } else {
         response(res, 500, false, `An error occured : ${error}`);
       }

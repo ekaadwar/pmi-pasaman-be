@@ -115,10 +115,33 @@ exports.addDonor = (req, res) => {
 // ----- read -----
 exports.getDonorData = (req, res) => {
   if (req.authUser.role === "admin") {
-    donorModels.getDonorData((error, results) => {
+    const condition = req.query;
+    condition.limit = parseInt(condition.limit) || 20;
+    condition.offset = parseInt(condition.offset) || 0;
+    condition.page = parseInt(condition.page) || 1;
+    condition.offset = condition.page * condition.limit - condition.limit;
+    let pageInfo = {};
+
+    donorModels.getDonorData(condition, (error, results) => {
       if (!error) {
-        response(res, 200, true, "Riwayat donor", results);
+        const totalData = results.length;
+        const lastPage = Math.ceil(totalData / condition.limit);
+
+        pageInfo.totalData = totalData;
+        pageInfo.currentPage = condition.page;
+        pageInfo.lastPage = lastPage;
+        pageInfo.limit = condition.limit;
+        pageInfo.nextPage =
+          condition.page < lastPage
+            ? `${APP_URL}/donor?page=${pageInfo.currentPage + 1}`
+            : null;
+        pageInfo.prevPage =
+          condition.page > 1
+            ? `${APP_URL}/donor?page=${pageInfo.currentPage - 1}`
+            : null;
+        response(res, 200, true, "Riwayat donor", results, pageInfo);
       } else {
+        console.log(error);
         response(res, 500, false, `an error occured. ${error}`);
       }
     });

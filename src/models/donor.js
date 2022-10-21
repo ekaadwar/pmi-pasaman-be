@@ -27,9 +27,13 @@ exports.getMyDonor = (id, cb) => {
   );
 };
 
-exports.getDonorData = (cb) => {
+exports.getDonorData = (condition, cb) => {
   connection.query(
-    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} LEFT JOIN user ON ${table}.id_user = user.id WHERE status = "active"`,
+    `SELECT ${table}.id, user.nama, ${table}.gol_darah, ${table}.lokasi, ${table}.created_at FROM ${table} 
+    LEFT JOIN user ON ${table}.id_user = user.id 
+    WHERE status = "active"
+    LIMIT ? OFFSET ?`,
+    [condition.limit, condition.offset],
     cb
   );
 };

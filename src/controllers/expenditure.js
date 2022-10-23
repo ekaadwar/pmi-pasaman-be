@@ -9,49 +9,54 @@ const { APP_URL } = process.env;
 exports.createExpenditure = (req, res) => {
   if (req.authUser.role === "admin") {
     const data = req.body;
-    data.bloodGroup = data.bloodGroup.toUpperCase();
-    stockModels.getStockByBlood(data.bloodGroup, (error, result) => {
-      if (!error) {
-        if (result.length > 0) {
-          const stock = result[0];
-          if (data.amount > stock.total) {
-            response(res, 400, false, "Maaf, stok tidak mencukupi.");
+    if (data.bloodGroup && data.amount && data.receiver) {
+      data.bloodGroup = data.bloodGroup.toUpperCase();
+      stockModels.getStockByBlood(data.bloodGroup, (error, result) => {
+        if (!error) {
+          if (result.length > 0) {
+            const stock = result[0];
+            if (data.amount > stock.total) {
+              response(res, 400, false, "Maaf, stok tidak mencukupi.");
+            } else {
+              expendModels.createExpenditure(data, (error) => {
+                if (!error) {
+                  const expenditure =
+                    Number(stock.keluar) + Number(data.amount);
+                  const total = Number(stock.masuk) - expenditure;
+                  const dataStock = {
+                    id: stock.id,
+                    income: stock.masuk,
+                    expenditure,
+                    total,
+                  };
+                  stockModels.updateStock(dataStock, (errUpdate) => {
+                    if (!errUpdate) {
+                      console.log(dataStock.expenditure);
+                      response(res, 200, true, "Data telah ditambahkan");
+                    } else {
+                      response(res, 500, false, `An error occure. ${error}`);
+                    }
+                  });
+                } else {
+                  response(
+                    res,
+                    500,
+                    false,
+                    `An error occured when create expenditure. ${error}`
+                  );
+                }
+              });
+            }
           } else {
-            expendModels.createExpenditure(data, (error) => {
-              if (!error) {
-                const expenditure = Number(stock.keluar) + Number(data.amount);
-                const total = Number(stock.masuk) - expenditure;
-                const dataStock = {
-                  id: stock.id,
-                  income: stock.masuk,
-                  expenditure,
-                  total,
-                };
-                stockModels.updateStock(dataStock, (errUpdate) => {
-                  if (!errUpdate) {
-                    console.log(dataStock.expenditure);
-                    response(res, 200, true, "Data telah ditambahkan");
-                  } else {
-                    response(res, 500, false, `An error occure. ${error}`);
-                  }
-                });
-              } else {
-                response(
-                  res,
-                  500,
-                  false,
-                  `An error occured when create expenditure. ${error}`
-                );
-              }
-            });
+            response(res, 404, false, `Data golongn darah tidak tersedia.`);
           }
         } else {
-          response(res, 404, false, `Data golongn darah tidak tersedia.`);
+          response(res, 500, false, `An error occure. ${error}`);
         }
-      } else {
-        response(res, 500, false, `An error occure. ${error}`);
-      }
-    });
+      });
+    } else {
+      response(res, 400, false, "Maaf, kolom isian tidak boleh kosong");
+    }
   } else {
     response(res, 400, false, "Maaf, Anda tidak memiliki otoritas");
   }

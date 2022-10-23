@@ -167,12 +167,21 @@ exports.getDonorByIdUser = (req, res) => {
           donorModels.getDonorByIdUser(id, (error, results) => {
             if (!error) {
               if (results.length > 0) {
+                const pageInfo = {
+                  totalData: results.length,
+                  currentPage: 1,
+                  lastPage: 1,
+                  limit: 0,
+                  nextPage: null,
+                  prevPage: null,
+                };
                 response(
                   res,
                   200,
                   true,
                   `Data riwayat donor ${result[0].nama}`,
-                  results
+                  results,
+                  pageInfo
                 );
               } else {
                 response(
@@ -212,7 +221,22 @@ exports.getMyHistory = (req, res) => {
         donorModels.getMyDonor(id, (error, results) => {
           if (!error) {
             if (results.length > 0) {
-              response(res, 200, true, `Data riwayat donor Anda`, results);
+              const pageInfo = {
+                totalData: results.length,
+                currentPage: 1,
+                lastPage: 1,
+                limit: 0,
+                nextPage: null,
+                prevPage: null,
+              };
+              response(
+                res,
+                200,
+                true,
+                `Data riwayat donor Anda`,
+                results,
+                pageInfo
+              );
             } else {
               response(res, 404, false, `Data donor Anda tidak ditemukan.`);
             }

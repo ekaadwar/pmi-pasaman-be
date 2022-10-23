@@ -85,11 +85,11 @@ exports.getExpenditure = (req, res) => {
             pageInfo.limit = condition.limit;
             pageInfo.nextPage =
               condition.page < lastPage
-                ? `${APP_URL}/donor?page=${pageInfo.currentPage + 1}`
+                ? `${APP_URL}/expenditure?page=${pageInfo.currentPage + 1}`
                 : null;
             pageInfo.prevPage =
               condition.page > 1
-                ? `${APP_URL}/donor?page=${pageInfo.currentPage - 1}`
+                ? `${APP_URL}/expenditure?page=${pageInfo.currentPage - 1}`
                 : null;
             response(
               res,

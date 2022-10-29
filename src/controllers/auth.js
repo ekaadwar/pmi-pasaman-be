@@ -54,6 +54,7 @@ exports.signin = (req, res) => {
         response(res, 404, false, "Email not found!");
       }
     } else {
+      console.log(error);
       response(res, 500, false, "An error occured");
     }
   });

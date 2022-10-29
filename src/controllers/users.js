@@ -56,6 +56,7 @@ exports.addUser = (req, res) => {
 
                   modelUsers.updateProfilePart(ageData, (error) => {
                     if (error) {
+                      console.log(error);
                       return response(
                         res,
                         400,

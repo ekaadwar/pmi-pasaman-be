@@ -105,3 +105,20 @@ exports.updateBloodStock = (req, res) => {
     );
   }
 };
+
+// ----- delete -----
+
+exports.deleteBloodGroup = (req, res) => {
+  if (req.authUser.role === "admin") {
+    stockModels.deleteBloodGroup(req.params.id, (error) => {
+      if (!error) {
+        response(res, 200, true, `Data golongan darah telah dihapus.`);
+      } else {
+        console.log(error);
+        response(res, 500, false, `An error occured. ${error}`);
+      }
+    });
+  } else {
+    return response(res, 400, false, "Maaf, Anda tidak memiliki otoritas.");
+  }
+};

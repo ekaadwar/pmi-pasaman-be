@@ -282,7 +282,10 @@ exports.updateProfilePart = (req, res) => {
           if (countColumn > 0) {
             for (let i = 0; i < countColumn; i++) {
               const col = column[i];
-              const val = value[i];
+              let val;
+              if (col === "gol_darah") {
+                val = value[i].toUpperCase();
+              }
               const data = { id, col, val };
 
               if (
@@ -389,7 +392,11 @@ exports.updateUserById = (req, res) => {
           if (countColumn > 0) {
             for (let i = 0; i < countColumn; i++) {
               const col = column[i];
-              const val = value[i];
+              let val;
+              if (col === "gol_darah") {
+                val = value[i].toUpperCase();
+              }
+
               const data = { id, col, val };
 
               if (

@@ -16,7 +16,8 @@ exports.addBloodGroup = (req, res) => {
             `Tidak dapat menambahkan data golongan darah ${bloodGroup} karena sudah tersedia.`
           );
         } else {
-          stockModels.addBloodGroup(req.body.bloodGroup, (error) => {
+          const blood = bloodGroup.toUpperCase();
+          stockModels.addBloodGroup(blood, (error) => {
             if (!error) {
               response(
                 res,
@@ -43,7 +44,7 @@ exports.addBloodGroup = (req, res) => {
   }
 };
 
-// read
+// ----- read -----
 
 exports.getStock = (req, res) => {
   stockModels.getStock((error, results) => {

@@ -1,10 +1,13 @@
+const { diffMonth } = require("../helpers/date");
 const { response } = require("../helpers/standardResponse");
 const donorModels = require("../models/donor");
 const stockModels = require("../models/stock");
 const userModels = require("../models/users");
 const { APP_URL } = process.env;
 
-// ----- create -----
+// ---------- create ----------
+// ---------- create ----------
+// ---------- create ----------
 
 exports.addDonor = (req, res) => {
   if (req.authUser.role === "admin") {
@@ -54,6 +57,7 @@ exports.addDonor = (req, res) => {
                             dataSchedule,
                             (errSchedule) => {
                               if (!errSchedule) {
+                                diffMonth(new Date());
                                 response(
                                   res,
                                   200,

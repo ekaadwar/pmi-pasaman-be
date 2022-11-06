@@ -51,29 +51,38 @@ exports.addDonor = (req, res) => {
                           }
 
                           const schedule = `${year}-${month}-${date}`;
-                          const dataSchedule = { id: data.id, schedule };
+                          const diff = diffMonth(schedule);
+                          const dataSchedule = { id: data.id, schedule, diff };
 
-                          userModels.updateUserDonorSchedule(
-                            dataSchedule,
-                            (errSchedule) => {
-                              if (!errSchedule) {
-                                diffMonth(new Date());
-                                response(
-                                  res,
-                                  200,
-                                  true,
-                                  `Data telah ditambahkan`
-                                );
-                              } else {
-                                response(
-                                  res,
-                                  400,
-                                  false,
-                                  `Jadwal donor gagal diperbarui`
-                                );
+                          if (diff >= 0) {
+                            userModels.updateUserDonorSchedule(
+                              dataSchedule,
+                              (errSchedule) => {
+                                if (!errSchedule) {
+                                  response(
+                                    res,
+                                    200,
+                                    true,
+                                    `Data telah ditambahkan`
+                                  );
+                                } else {
+                                  response(
+                                    res,
+                                    400,
+                                    false,
+                                    `Jadwal donor gagal diperbarui`
+                                  );
+                                }
                               }
-                            }
-                          );
+                            );
+                          } else {
+                            response(
+                              res,
+                              400,
+                              false,
+                              `Jarak donor sebelumnya belum cukup tiga bulan.`
+                            );
+                          }
                         } else {
                           response(
                             res,

@@ -196,12 +196,11 @@ exports.updateProfileDetail = (data, cb) => {
 };
 
 exports.updateUserDonorSchedule = (data, cb) => {
-  // connection.query(
-  //   `UPDATE detail_user SET jadwal_donor = ? WHERE id_user=?`,
-  //   [data.schedule, data.id],
-  //   cb
-  // );
-  console.log(data);
+  connection.query(
+    `UPDATE detail_user SET jadwal_donor = ?, jarak_donor = ?  WHERE id_user=?`,
+    [data.schedule, data.diff, data.id],
+    cb
+  );
 };
 
 // delete

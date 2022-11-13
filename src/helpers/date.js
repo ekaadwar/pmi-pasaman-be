@@ -35,6 +35,10 @@ exports.donorSchedule = () => {
     y2 += 1;
   }
 
+  if (m2 < 10) {
+    m2 = `0${m2}`;
+  }
+
   const r = `${y2}-${m2}-${d}`;
 
   return r;

@@ -1,5 +1,4 @@
 exports.diffMonth = (date) => {
-  console.log(date);
   const today = new Date();
   const thisMonth = Number(today.getMonth());
   const thisYear = Number(today.getFullYear());
@@ -20,4 +19,23 @@ exports.diffMonth = (date) => {
     }
   }
   return result;
+};
+
+exports.donorSchedule = () => {
+  const td = new Date();
+  const d = td.getDate();
+  const m = td.getMonth() + 1;
+  const y = td.getFullYear();
+
+  let m2 = m + 3;
+  let y2 = y;
+
+  if (m2 > 12) {
+    m2 -= 12;
+    y2 += 1;
+  }
+
+  const r = `${y2}-${m2}-${d}`;
+
+  return r;
 };

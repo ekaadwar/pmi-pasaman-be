@@ -167,6 +167,24 @@ exports.getUserIdAndName = (cb) => {
   connection.query(`SELECT id, nama FROM ${table}`, cb);
 };
 
+exports.getUserToDonor = (id, cb) => {
+  connection.query(
+    `
+    SELECT 
+      ${table}.gol_darah AS golDarah, 
+      detail_user.jadwal_donor AS jadwalDonor, 
+      stok_darah.masuk AS masuk, 
+      stok_darah.keluar AS keluar,
+      stok_darah.total AS total 
+    FROM ${table} 
+    INNER JOIN detail_user ON user.id = detail_user.id_user 
+    INNER JOIN stok_darah ON user.gol_darah = stok_darah.gol_darah 
+    WHERE ${table}.id = ${id};
+    `,
+    cb
+  );
+};
+
 // ----- update -----
 
 exports.updateDetailUser = (data, cb) => {

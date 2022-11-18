@@ -65,22 +65,21 @@ exports.forgotPassword = (req, res) => {
   modelUsers.getUserByEmail(email, async (error, results) => {
     if (!error) {
       if (results.length > 0) {
-        // console.log(results);
-        modelAuth.getDataByIdUser(results[0].id, (err, count) => {
-          if (!err) {
-            if (count.length > 0) {
-              modelAuth.deleteDataById(count[0].id, (err) => {
-                if (!err) {
-                  console.log("ok");
-                } else {
-                  console.log("token lama gagal di hapus");
-                }
-              });
-            }
-          } else {
-            console.log(err);
-          }
-        });
+        // modelAuth.getDataByIdUser(results[0].id, (err, count) => {
+        //   if (!err) {
+        //     if (count.length > 0) {
+        //       modelAuth.deleteDataById(count[0].id, (err) => {
+        //         if (!err) {
+        //           console.log("ok");
+        //         } else {
+        //           console.log("token lama gagal di hapus");
+        //         }
+        //       });
+        //     }
+        //   } else {
+        //     console.log(err);
+        //   }
+        // });
 
         const forgotToken = await bcrypt.hash(
           results[0].id.toString(),

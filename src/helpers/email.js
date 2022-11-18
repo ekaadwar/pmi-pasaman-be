@@ -7,8 +7,8 @@ exports.kirimEmail = (dataEmail) => {
     secure: false,
     requireTLS: true,
     auth: {
-      user: "ekafajhariadwar@gmail.com",
-      pass: "snpdwbpfjpkegvvf",
+      user: "pmi.kabpasaman@gmail.com",
+      pass: "hcvstahdxiguklzu",
     },
   });
   return transporter

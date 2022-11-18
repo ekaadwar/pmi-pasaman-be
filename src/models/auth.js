@@ -20,6 +20,10 @@ exports.getDataByIdUser = (id, cb) => {
 
 // ----- update -----
 
+exports.resetPasswordLink = () => {
+  console.log("reset password link");
+};
+
 // ----- delete -----
 
 exports.deleteDataById = (id, cb) => {

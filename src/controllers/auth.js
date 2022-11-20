@@ -65,37 +65,25 @@ exports.forgotPassword = (req, res) => {
   modelUsers.getUserByEmail(email, async (error, results) => {
     if (!error) {
       if (results.length > 0) {
-        // modelAuth.getDataByIdUser(results[0].id, (err, count) => {
-        //   if (!err) {
-        //     if (count.length > 0) {
-        //       modelAuth.deleteDataById(count[0].id, (err) => {
-        //         if (!err) {
-        //           console.log("ok");
-        //         } else {
-        //           console.log("token lama gagal di hapus");
-        //         }
-        //       });
-        //     }
-        //   } else {
-        //     console.log(err);
-        //   }
-        // });
-
         const forgotToken = await bcrypt.hash(
           results[0].id.toString(),
           await bcrypt.genSalt()
         );
 
+        const tokenNoSlash = forgotToken.replace(/\//g, "slash");
+
+        console.log(tokenNoSlash);
+
         const templateEmail = {
           from: "PMI Pasaman",
           to: email,
           subject: "Link Reset Password",
-          html: `<p>Silahkan klik link di bawah ini untuk reset password Anda.</p><p>${process.env.APP_URL}/auth/resetpassword/${forgotToken}</p>`,
+          html: `<p>Silahkan klik link di bawah ini untuk reset password Anda.</p><p>${process.env.FRONTEND_URL}/reset-password/${tokenNoSlash}</p>`,
         };
 
         const forgotData = {
           id: results[0].id,
-          token: forgotToken,
+          token: tokenNoSlash,
         };
 
         modelAuth.addData(forgotData, (err) => {
@@ -123,5 +111,36 @@ exports.forgotPassword = (req, res) => {
 
 exports.resetPassword = (req, res) => {
   const { token } = req.params;
-  console.log(token);
+  modelAuth.getDataByToken(token, async (error, results) => {
+    if (!error) {
+      if (results.length) {
+        const { id, id_user, token } = results[0];
+        const password = await bcrypt.hash(
+          req.body.password,
+          await bcrypt.genSalt()
+        );
+        const data = {
+          password,
+          id: id_user,
+        };
+        modelAuth.updatePassword(data, (error) => {
+          if (!error) {
+            modelAuth.deleteDataById(id, (error) => {
+              if (!error) {
+                return response(res, 200, true, "Password berhasil diganti.");
+              } else {
+                return response(res, 500, false, "Password gagal diubah.");
+              }
+            });
+          } else {
+            return response(res, 500, false, error);
+          }
+        });
+      } else {
+        return response(res, 404, false, "the token has expired");
+      }
+    } else {
+      return response(res, 500, false, error);
+    }
+  });
 };

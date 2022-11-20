@@ -34,14 +34,6 @@ exports.createUsers = (data, cb) => {
   );
 };
 
-// exports.createDetailUsers = (data, cb) => {
-//   connection.query(
-//     `INSERT INTO detail_user (id_user, email, password) VALUES(?,?,?)`,
-//     [data.idUser, data.email, data.password],
-//     cb
-//   );
-// };
-
 exports.createDetailUsers = (data, cb) => {
   connection.query(
     `INSERT INTO detail_user (id_user, email, password) VALUES ( LAST_INSERT_ID(), ?, ?)`,

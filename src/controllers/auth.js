@@ -114,18 +114,21 @@ exports.resetPassword = (req, res) => {
   modelAuth.getDataByToken(token, async (error, results) => {
     if (!error) {
       if (results.length) {
-        const { id, id_user, token } = results[0];
+        const { id_user } = results[0];
+        console.log(req.body.password);
         const password = await bcrypt.hash(
           req.body.password,
           await bcrypt.genSalt()
         );
+
         const data = {
           password,
           id: id_user,
         };
+
         modelAuth.updatePassword(data, (error) => {
           if (!error) {
-            modelAuth.deleteDataById(id, (error) => {
+            modelAuth.deleteDataByIdUser(id_user, (error) => {
               if (!error) {
                 return response(res, 200, true, "Password berhasil diganti.");
               } else {

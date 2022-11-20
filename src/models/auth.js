@@ -41,6 +41,6 @@ exports.updatePassword = (data, cb) => {
 
 // ----- delete -----
 
-exports.deleteDataById = (id, cb) => {
-  connection.query(`DELETE FROM ${table} WHERE id=${id}`, cb);
+exports.deleteDataByIdUser = (id, cb) => {
+  connection.query(`DELETE FROM ${table} WHERE id_user=${id}`, cb);
 };

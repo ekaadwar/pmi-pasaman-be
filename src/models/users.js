@@ -42,6 +42,14 @@ exports.createDetailUsers = (data, cb) => {
   );
 };
 
+exports.editPasswordData = (data, cb) => {
+  connection.query(
+    `INSERT INTO edit_password (id_user, password, pin) VALUES (?,?,?)`,
+    [data.idUser, data.password, data.pin],
+    cb
+  );
+};
+
 // ----- read -----
 
 exports.getBloodById = (id, cb) => {
@@ -50,6 +58,14 @@ exports.getBloodById = (id, cb) => {
 
 exports.getIdByPhone = (noHp, cb) => {
   connection.query(`SELECT id FROM ${table} WHERE no_hp = ${noHp}`, cb);
+};
+
+exports.getEditPassData = (data, cb) => {
+  connection.query(
+    `SELECT password, pin FROM edit_password WHERE id_user=? AND pin = ?`,
+    [data.id, data.pin],
+    cb
+  );
 };
 
 exports.getTotalUser = (cond, cb) => {
@@ -124,6 +140,13 @@ exports.getUserByEmail = (email, cb) => {
       WHERE detail_user.email=?
     `,
     [email],
+    cb
+  );
+};
+
+exports.getPassword = (id, cb) => {
+  connection.query(
+    `SELECT email, password FROM detail_user WHERE id_user=${id}`,
     cb
   );
 };
@@ -220,4 +243,8 @@ exports.deleteUser = (id, cb) => {
     `UPDATE detail_user SET status="inactive" WHERE id_user=${id}`,
     cb
   );
+};
+
+exports.deleteEditPass = (id, cb) => {
+  connection.query(`DELETE FROM edit_password WHERE id_user=${id}`, cb);
 };

@@ -39,6 +39,10 @@ exports.signin = (req, res) => {
         const userId = user.id;
         const compare = await bcrypt.compare(password, user.password);
 
+        console.log(compare);
+        console.log(password);
+        console.log(user.password);
+
         if (compare) {
           const payload = { id: user.id, email: user.email, role: user.role };
           const token = jwt.sign(payload, process.env.APP_KEY);

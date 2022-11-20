@@ -5,6 +5,8 @@ const modelUsers = require("../models/users");
 const modelDonor = require("../models/donor");
 const getAge = require("../helpers/getAge");
 const { response } = require("../helpers/standardResponse");
+const randomString = require("../helpers/randomString");
+const { kirimEmail } = require("../helpers/email");
 const { APP_URL } = process.env;
 
 // ----- create -----
@@ -244,6 +246,97 @@ exports.updateDetailUser = (req, res) => {
       });
     } else {
       console.log(error);
+    }
+  });
+};
+
+exports.updatePassword = (req, res) => {
+  const idUser = req.authUser.id;
+  const { password, newPassword, rePassword } = req.body;
+
+  if (newPassword === rePassword) {
+    modelUsers.getPassword(idUser, async (error, result) => {
+      if (!error) {
+        const compare = await bcrypt.compare(password, result[0].password);
+        if (compare) {
+          const hashPassword = await bcrypt.hash(
+            newPassword,
+            await bcrypt.genSalt()
+          );
+          const pin = randomString(6);
+          const data = {
+            idUser,
+            password: hashPassword,
+            pin,
+          };
+          modelUsers.editPasswordData(data, (error) => {
+            if (!error) {
+              const templateEmail = {
+                from: "PMI Pasaman",
+                to: result[0].email,
+                subject: "secret PIN",
+                html: `
+                  <p>berikut adalah nomor PIN anda untuk melakukan konfirmasi ubah password.</p>
+                  <p><b>${pin}</b></p>
+                  <p>Pastikan untuk selalu menjaga kerahasiaan PIN</p>`,
+              };
+              kirimEmail(templateEmail);
+              return response(
+                res,
+                200,
+                true,
+                "kami telah mengirim nomor PIN ke email Anda. Silahkan lakukan konfirmasi pergantian password."
+              );
+            } else {
+              return response(res, 500, false, error);
+            }
+          });
+        } else {
+          return response(res, 400, false, "password salah");
+        }
+      } else {
+        return response(res, 500, false, error);
+      }
+    });
+  } else {
+    return response(res, 400, false, "password tidak cocok");
+  }
+};
+
+exports.updatePasswordConfirm = (req, res) => {
+  const { id } = req.authUser;
+  const { pin } = req.body;
+  const dataEdit = { id, pin };
+  modelUsers.getEditPassData(dataEdit, (error, result) => {
+    if (!error) {
+      if (result.length > 0) {
+        if (pin === result[0].pin) {
+          const data = {
+            id,
+            col: "password",
+            val: result[0].password,
+          };
+          modelUsers.updateProfileDetail(data, (error) => {
+            if (!error) {
+              modelUsers.deleteEditPass(id, (error) => {
+                if (!error) {
+                  return response(res, 200, true, "Password telah diganti.");
+                } else {
+                  return response(res, 500, false, error);
+                }
+              });
+            } else {
+              return response(res, 500, false, error);
+            }
+          });
+        } else {
+          return response(res, 400, false, "pin salah");
+        }
+      } else {
+        return response(res, 404, false, "pin tidak tersedia");
+      }
+    } else {
+      return response(res, 500, false, error);
     }
   });
 };

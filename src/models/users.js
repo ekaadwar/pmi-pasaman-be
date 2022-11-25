@@ -52,6 +52,13 @@ exports.editPasswordData = (data, cb) => {
 
 // ----- read -----
 
+exports.checkEmail = (email, cb) => {
+  connection.query(
+    `SELECT COUNT(id) AS id FROM detail_user WHERE email='${email}'`,
+    cb
+  );
+};
+
 exports.getBloodById = (id, cb) => {
   connection.query(`SELECT id, gol_darah FROM ${table} WHERE id=?`, [id], cb);
 };

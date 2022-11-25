@@ -9,23 +9,40 @@ exports.signup = async (req, res) => {
   const data = req.body;
   data.password = await bcrypt.hash(data.password, await bcrypt.genSalt());
 
-  modelUsers.createUsers(data, (error) => {
+  modelUsers.checkEmail(data.email, (error, result) => {
     if (!error) {
-      modelUsers.createDetailUsers(data, (errDetail) => {
-        if (!errDetail) {
-          return response(res, 200, true, "Register successfully");
-        } else {
-          return response(res, 500, false, "Detail failed to add");
-        }
-      });
+      if (result[0].id <= 0) {
+        console.log(result);
+        modelUsers.createUsers(data, (error) => {
+          if (!error) {
+            modelUsers.createDetailUsers(data, (errDetail) => {
+              if (!errDetail) {
+                return response(res, 200, true, "Register successfully");
+              } else {
+                return response(res, 500, false, "Detail failed to add");
+              }
+            });
+          } else {
+            console.log(error);
+            return response(
+              res,
+              500,
+              false,
+              `Register failed! Error : ${error.sqlMessage}. sql : ${error.sql}`
+            );
+          }
+        });
+      } else {
+        console.log(result[0]);
+        return response(
+          res,
+          400,
+          false,
+          `email atau nomor hp tidak bisa dipakai karena telah digunakan.`
+        );
+      }
     } else {
-      console.log(error);
-      return response(
-        res,
-        500,
-        false,
-        `Register failed! Error : ${error.sqlMessage}. sql : ${error.sql}`
-      );
+      return response(res, 500, false, error);
     }
   });
 };

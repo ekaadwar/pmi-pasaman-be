@@ -29,7 +29,7 @@ exports.createUserDetailByAdmin = (data, cb) => {
 exports.createUsers = (data, cb) => {
   connection.query(
     `INSERT INTO user (nama, no_hp) VALUES (?, ?)`,
-    [data.nama, data.noHp],
+    [data.nama ? data.nama : null, data.noHp ? data.noHp : null],
     cb
   );
 };
@@ -37,7 +37,7 @@ exports.createUsers = (data, cb) => {
 exports.createDetailUsers = (data, cb) => {
   connection.query(
     `INSERT INTO detail_user (id_user, email, password) VALUES ( LAST_INSERT_ID(), ?, ?)`,
-    [data.email, data.password],
+    [data.email ? data.email : null, data.password ? data.password : null],
     cb
   );
 };
@@ -52,9 +52,11 @@ exports.editPasswordData = (data, cb) => {
 
 // ----- read -----
 
-exports.checkEmail = (email, cb) => {
+exports.checkEmailOrPhone = (data, cb) => {
   connection.query(
-    `SELECT COUNT(id) AS id FROM detail_user WHERE email='${email}'`,
+    `SELECT COUNT(${table}.id) AS id FROM ${table} 
+    INNER JOIN detail_user ON ${table}.id = detail_user.id_user
+    WHERE detail_user.email='${data.email}' OR ${table}.no_hp = '${data.noHp}' `,
     cb
   );
 };

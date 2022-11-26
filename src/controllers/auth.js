@@ -8,43 +8,48 @@ const modelAuth = require("../models/auth");
 exports.signup = async (req, res) => {
   const data = req.body;
   data.password = await bcrypt.hash(data.password, await bcrypt.genSalt());
-
-  modelUsers.checkEmail(data.email, (error, result) => {
-    if (!error) {
-      if (result[0].id <= 0) {
-        console.log(result);
-        modelUsers.createUsers(data, (error) => {
-          if (!error) {
-            modelUsers.createDetailUsers(data, (errDetail) => {
-              if (!errDetail) {
-                return response(res, 200, true, "Register successfully");
-              } else {
-                return response(res, 500, false, "Detail failed to add");
-              }
-            });
-          } else {
-            console.log(error);
-            return response(
-              res,
-              500,
-              false,
-              `Register failed! Error : ${error.sqlMessage}. sql : ${error.sql}`
-            );
-          }
-        });
+  if (data.noHp || data.email) {
+    modelUsers.checkEmailOrPhone(data, (error, result) => {
+      if (!error) {
+        if (result[0].id <= 0) {
+          modelUsers.createUsers(data, (error) => {
+            if (!error) {
+              modelUsers.createDetailUsers(data, (errDetail) => {
+                if (!errDetail) {
+                  return response(res, 200, true, "Register successfully");
+                } else {
+                  return response(res, 500, false, "Detail failed to add");
+                }
+              });
+            } else {
+              return response(
+                res,
+                500,
+                false,
+                `Register failed! Error : ${error.sqlMessage}. sql : ${error.sql}`
+              );
+            }
+          });
+        } else {
+          return response(
+            res,
+            400,
+            false,
+            `email atau nomor hp tidak bisa dipakai karena telah digunakan.`
+          );
+        }
       } else {
-        console.log(result[0]);
-        return response(
-          res,
-          400,
-          false,
-          `email atau nomor hp tidak bisa dipakai karena telah digunakan.`
-        );
+        return response(res, 500, false, error);
       }
-    } else {
-      return response(res, 500, false, error);
-    }
-  });
+    });
+  } else {
+    return response(
+      res,
+      400,
+      false,
+      "Mohon untuk mengisi data email atau nomor HP."
+    );
+  }
 };
 
 exports.signin = (req, res) => {
@@ -71,7 +76,6 @@ exports.signin = (req, res) => {
         response(res, 404, false, "Email not found!");
       }
     } else {
-      console.log(error);
       response(res, 500, false, "An error occured");
     }
   });
@@ -88,8 +92,6 @@ exports.forgotPassword = (req, res) => {
         );
 
         const tokenNoSlash = forgotToken.replace(/\//g, "slash");
-
-        console.log(tokenNoSlash);
 
         const templateEmail = {
           from: "PMI Pasaman",
@@ -113,7 +115,6 @@ exports.forgotPassword = (req, res) => {
               `Link reset password berhasil di kirim`
             );
           } else {
-            console.log(err);
             return response(res, 404, false, "token gagal disimpan");
           }
         });
@@ -132,7 +133,6 @@ exports.resetPassword = (req, res) => {
     if (!error) {
       if (results.length) {
         const { id_user } = results[0];
-        console.log(req.body.password);
         const password = await bcrypt.hash(
           req.body.password,
           await bcrypt.genSalt()

@@ -6,13 +6,13 @@ exports.createUserByAdmin = (data, cb) => {
   connection.query(
     `INSERT INTO ${table}  (nama,  no_hp, alamat, pekerjaan, umur, jenis_kelamin, gol_darah ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [
-      data.nama,
-      data.no_hp,
-      data.alamat,
-      data.pekerjaan,
-      data.umur,
-      data.jenis_kelamin,
-      data.gol_darah,
+      data.nama ? data.nama : null,
+      data.no_hp ? data.no_hp : null,
+      data.alamat ? data.nama : null,
+      data.pekerjaan ? data.pekerjaan : null,
+      data.umur ? data.umur : null,
+      data.jenis_kelamin ? data.jenis_kelamin : null,
+      data.gol_darah ? data.gol_darah : null,
     ],
     cb
   );
@@ -21,7 +21,12 @@ exports.createUserByAdmin = (data, cb) => {
 exports.createUserDetailByAdmin = (data, cb) => {
   connection.query(
     `INSERT INTO detail_user  (foto, id_user, email, password, tanggal_lahir) VALUES(?, LAST_INSERT_ID(), ?, ?, ?)`,
-    [data.foto, data.email, data.password, data.tanggalLahir],
+    [
+      data.foto ? data.foto : null,
+      data.email ? data.email : null,
+      data.password ? data.password : null,
+      data.tanggalLahir ? data.tanggalLahir : null,
+    ],
     cb
   );
 };

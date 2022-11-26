@@ -11,94 +11,6 @@ const { APP_URL } = process.env;
 
 // ----- create -----
 
-// exports.addUser = (req, res) => {
-//   if (req.authUser.role === "admin") {
-//     itemPicture(req, res, async (error) => {
-//       if (!error) {
-//         req.body.file = req.file
-//           ? `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`
-//           : null;
-
-//         const data = req.body;
-//         data.password = await bcrypt.hash(
-//           data.password,
-//           await bcrypt.genSalt()
-//         );
-
-//         data.tanggalLahir = new Date(data.tanggalLahir);
-
-//         modelUsers.createUserByAdmin(data, (error, results) => {
-//           if (!error) {
-//             if (results.affectedRows) {
-//               modelUsers.createUserDetailByAdmin(data, (error) => {
-//                 if (!error) {
-//                   const today = new Date();
-//                   const birthDay = data.tanggalLahir;
-//                   const thisYear = today.getFullYear();
-//                   const thisMonth = today.getMonth() + 1;
-//                   const thisDate = today.getDate();
-//                   const birthYear = birthDay.getFullYear();
-//                   const birthMonth = birthDay.getMonth() + 1;
-//                   const birthDate = birthDay.getDate();
-
-//                   let age = thisYear - birthYear;
-//                   if (thisMonth < birthMonth) {
-//                     age -= 1;
-//                   } else if (thisMonth === birthMonth) {
-//                     if (thisDate < birthDate) {
-//                       age -= 1;
-//                     }
-//                   }
-
-//                   const ageData = {
-//                     col: "umur",
-//                     val: age,
-//                     id: results.insertId,
-//                   };
-
-//                   modelUsers.updateProfilePart(ageData, (error) => {
-//                     if (error) {
-//                       console.log(error);
-//                       return response(
-//                         res,
-//                         400,
-//                         false,
-//                         "Terjadi error saat update Umur!"
-//                       );
-//                     } else {
-//                       return response(
-//                         res,
-//                         200,
-//                         true,
-//                         "Data has been inserted succesfully!"
-//                       );
-//                     }
-//                   });
-//                 } else {
-//                   return response(
-//                     res,
-//                     400,
-//                     false,
-//                     "Failed to created detail items"
-//                   );
-//                 }
-//               });
-//             } else {
-//               return response(res, 400, false, "Failed to created items");
-//             }
-//           } else {
-//             response(res, 500, false, error);
-//           }
-//         });
-//       } else {
-//         return standardResponse(res, 500, false, error);
-//       }
-//     });
-//   } else {
-//     return response(res, 400, false, "Sorry, you have no authority!");
-//   }
-// };
-
 exports.addUser = (req, res) => {
   if (req.authUser.role === "admin") {
     itemPicture(req, res, async (error) => {
@@ -118,75 +30,99 @@ exports.addUser = (req, res) => {
         }
 
         if (data.no_hp || data.email) {
-          modelUsers.createUserByAdmin(data, (error, results) => {
+          const checkParams = {
+            email: data.email,
+            noHp: data.no_hp,
+          };
+          modelUsers.checkEmailOrPhone(checkParams, (error, check) => {
             if (!error) {
-              if (results.affectedRows) {
-                modelUsers.createUserDetailByAdmin(data, (error) => {
+              if (check[0].id <= 0) {
+                modelUsers.createUserByAdmin(data, (error, results) => {
                   if (!error) {
-                    if (data.tanggalLahir) {
-                      const today = new Date();
-                      const birthDay = data.tanggalLahir;
-                      const thisYear = today.getFullYear();
-                      const thisMonth = today.getMonth() + 1;
-                      const thisDate = today.getDate();
-                      const birthYear = birthDay.getFullYear();
-                      const birthMonth = birthDay.getMonth() + 1;
-                      const birthDate = birthDay.getDate();
+                    if (results.affectedRows) {
+                      modelUsers.createUserDetailByAdmin(data, (error) => {
+                        if (!error) {
+                          if (data.tanggalLahir) {
+                            const today = new Date();
+                            const birthDay = data.tanggalLahir;
+                            const thisYear = today.getFullYear();
+                            const thisMonth = today.getMonth() + 1;
+                            const thisDate = today.getDate();
+                            const birthYear = birthDay.getFullYear();
+                            const birthMonth = birthDay.getMonth() + 1;
+                            const birthDate = birthDay.getDate();
 
-                      let age = thisYear - birthYear;
-                      if (thisMonth < birthMonth) {
-                        age -= 1;
-                      } else if (thisMonth === birthMonth) {
-                        if (thisDate < birthDate) {
-                          age -= 1;
-                        }
-                      }
+                            let age = thisYear - birthYear;
+                            if (thisMonth < birthMonth) {
+                              age -= 1;
+                            } else if (thisMonth === birthMonth) {
+                              if (thisDate < birthDate) {
+                                age -= 1;
+                              }
+                            }
 
-                      const ageData = {
-                        col: "umur",
-                        val: age,
-                        id: results.insertId,
-                      };
+                            const ageData = {
+                              col: "umur",
+                              val: age,
+                              id: results.insertId,
+                            };
 
-                      modelUsers.updateProfilePart(ageData, (error) => {
-                        if (error) {
+                            modelUsers.updateProfilePart(ageData, (error) => {
+                              if (error) {
+                                return response(
+                                  res,
+                                  400,
+                                  false,
+                                  "Terjadi error saat update Umur!"
+                                );
+                              } else {
+                                return response(
+                                  res,
+                                  200,
+                                  true,
+                                  "Data has been inserted succesfully!"
+                                );
+                              }
+                            });
+                          } else {
+                            return response(
+                              res,
+                              200,
+                              true,
+                              "Data has been inserted succesfully!"
+                            );
+                          }
+                        } else {
                           return response(
                             res,
                             400,
                             false,
-                            "Terjadi error saat update Umur!"
-                          );
-                        } else {
-                          return response(
-                            res,
-                            200,
-                            true,
-                            "Data has been inserted succesfully!"
+                            "Failed to created detail items"
                           );
                         }
                       });
                     } else {
                       return response(
                         res,
-                        200,
-                        true,
-                        "Data has been inserted succesfully!"
+                        400,
+                        false,
+                        "Failed to created items"
                       );
                     }
                   } else {
-                    return response(
-                      res,
-                      400,
-                      false,
-                      "Failed to created detail items"
-                    );
+                    response(res, 500, false, error);
                   }
                 });
               } else {
-                return response(res, 400, false, "Failed to created items");
+                return response(
+                  res,
+                  400,
+                  false,
+                  `email atau nomor hp tidak bisa dipakai karena telah digunakan.`
+                );
               }
             } else {
-              response(res, 500, false, error);
+              return response(res, 500, false, error);
             }
           });
         } else {
@@ -362,45 +298,63 @@ exports.updatePassword = (req, res) => {
   const { password, newPassword, rePassword } = req.body;
 
   if (newPassword === rePassword) {
-    modelUsers.getPassword(idUser, async (error, result) => {
+    modelUsers.getUserById(idUser, (error, email) => {
       if (!error) {
-        const compare = await bcrypt.compare(password, result[0].password);
-        if (compare) {
-          const hashPassword = await bcrypt.hash(
-            newPassword,
-            await bcrypt.genSalt()
-          );
-          const pin = randomString(6);
-          const data = {
-            idUser,
-            password: hashPassword,
-            pin,
-          };
-          modelUsers.editPasswordData(data, (error) => {
+        if (email[0].email) {
+          console.log(email[0].email);
+          modelUsers.getPassword(idUser, async (error, result) => {
             if (!error) {
-              const templateEmail = {
-                from: "PMI Pasaman",
-                to: result[0].email,
-                subject: "secret PIN",
-                html: `
-                  <p>berikut adalah nomor PIN anda untuk melakukan konfirmasi ubah password.</p>
-                  <p><b>${pin}</b></p>
-                  <p>Pastikan untuk selalu menjaga kerahasiaan PIN</p>`,
-              };
-              kirimEmail(templateEmail);
-              return response(
-                res,
-                200,
-                true,
-                "kami telah mengirim nomor PIN ke email Anda. Silahkan lakukan konfirmasi pergantian password."
+              const compare = await bcrypt.compare(
+                password,
+                result[0].password
               );
+              if (compare) {
+                const hashPassword = await bcrypt.hash(
+                  newPassword,
+                  await bcrypt.genSalt()
+                );
+                const pin = randomString(6);
+                const data = {
+                  idUser,
+                  password: hashPassword,
+                  pin,
+                };
+                modelUsers.editPasswordData(data, (error) => {
+                  if (!error) {
+                    const templateEmail = {
+                      from: "PMI Pasaman",
+                      to: result[0].email,
+                      subject: "secret PIN",
+                      html: `
+                        <p>berikut adalah nomor PIN anda untuk melakukan konfirmasi ubah password.</p>
+                        <p><b>${pin}</b></p>
+                        <p>Pastikan untuk selalu menjaga kerahasiaan PIN</p>`,
+                    };
+                    kirimEmail(templateEmail);
+                    return response(
+                      res,
+                      200,
+                      true,
+                      "kami telah mengirim nomor PIN ke email Anda. Silahkan lakukan konfirmasi pergantian password."
+                    );
+                  } else {
+                    return response(res, 500, false, error);
+                  }
+                });
+              } else {
+                return response(res, 400, false, "password salah");
+              }
             } else {
               return response(res, 500, false, error);
             }
           });
-        } else {
-          return response(res, 400, false, "password salah");
         }
+        return response(
+          res,
+          400,
+          false,
+          "Mohon untuk mengisi email terlebih dahulu."
+        );
       } else {
         return response(res, 500, false, error);
       }
@@ -475,6 +429,8 @@ exports.updateProfilePart = (req, res) => {
             req.body.photo = `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`;
           }
 
+          console.log(req.body);
+
           const column = Object.keys(req.body);
           const value = Object.values(req.body);
           const countColumn = column.length;
@@ -485,8 +441,11 @@ exports.updateProfilePart = (req, res) => {
               let val;
               if (col === "gol_darah") {
                 val = value[i].toUpperCase();
+              } else {
+                val = value[i];
               }
               const data = { id, col, val };
+              console.log(data);
 
               if (
                 col === "nama" ||

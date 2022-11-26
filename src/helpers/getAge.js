@@ -1,4 +1,5 @@
 const getAge = (birthDate) => {
+  // console.log(birthDate);
   let birth;
   if (typeof birthDate !== "string") {
     const birthdate = birthDate.getDate();

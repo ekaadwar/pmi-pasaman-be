@@ -11,6 +11,94 @@ const { APP_URL } = process.env;
 
 // ----- create -----
 
+// exports.addUser = (req, res) => {
+//   if (req.authUser.role === "admin") {
+//     itemPicture(req, res, async (error) => {
+//       if (!error) {
+//         req.body.file = req.file
+//           ? `${process.env.APP_UPLOAD_ROUTE}/${req.file.filename}`
+//           : null;
+
+//         const data = req.body;
+//         data.password = await bcrypt.hash(
+//           data.password,
+//           await bcrypt.genSalt()
+//         );
+
+//         data.tanggalLahir = new Date(data.tanggalLahir);
+
+//         modelUsers.createUserByAdmin(data, (error, results) => {
+//           if (!error) {
+//             if (results.affectedRows) {
+//               modelUsers.createUserDetailByAdmin(data, (error) => {
+//                 if (!error) {
+//                   const today = new Date();
+//                   const birthDay = data.tanggalLahir;
+//                   const thisYear = today.getFullYear();
+//                   const thisMonth = today.getMonth() + 1;
+//                   const thisDate = today.getDate();
+//                   const birthYear = birthDay.getFullYear();
+//                   const birthMonth = birthDay.getMonth() + 1;
+//                   const birthDate = birthDay.getDate();
+
+//                   let age = thisYear - birthYear;
+//                   if (thisMonth < birthMonth) {
+//                     age -= 1;
+//                   } else if (thisMonth === birthMonth) {
+//                     if (thisDate < birthDate) {
+//                       age -= 1;
+//                     }
+//                   }
+
+//                   const ageData = {
+//                     col: "umur",
+//                     val: age,
+//                     id: results.insertId,
+//                   };
+
+//                   modelUsers.updateProfilePart(ageData, (error) => {
+//                     if (error) {
+//                       console.log(error);
+//                       return response(
+//                         res,
+//                         400,
+//                         false,
+//                         "Terjadi error saat update Umur!"
+//                       );
+//                     } else {
+//                       return response(
+//                         res,
+//                         200,
+//                         true,
+//                         "Data has been inserted succesfully!"
+//                       );
+//                     }
+//                   });
+//                 } else {
+//                   return response(
+//                     res,
+//                     400,
+//                     false,
+//                     "Failed to created detail items"
+//                   );
+//                 }
+//               });
+//             } else {
+//               return response(res, 400, false, "Failed to created items");
+//             }
+//           } else {
+//             response(res, 500, false, error);
+//           }
+//         });
+//       } else {
+//         return standardResponse(res, 500, false, error);
+//       }
+//     });
+//   } else {
+//     return response(res, 400, false, "Sorry, you have no authority!");
+//   }
+// };
+
 exports.addUser = (req, res) => {
   if (req.authUser.role === "admin") {
     itemPicture(req, res, async (error) => {
@@ -25,46 +113,58 @@ exports.addUser = (req, res) => {
           await bcrypt.genSalt()
         );
 
-        data.tanggalLahir = new Date(data.tanggalLahir);
+        if (data.tanggalLahir) {
+          data.tanggalLahir = new Date(data.tanggalLahir);
+        }
 
-        modelUsers.createUserByAdmin(data, (error, results) => {
-          if (!error) {
-            if (results.affectedRows) {
-              modelUsers.createUserDetailByAdmin(data, (error) => {
-                if (!error) {
-                  const today = new Date();
-                  const birthDay = data.tanggalLahir;
-                  const thisYear = today.getFullYear();
-                  const thisMonth = today.getMonth() + 1;
-                  const thisDate = today.getDate();
-                  const birthYear = birthDay.getFullYear();
-                  const birthMonth = birthDay.getMonth() + 1;
-                  const birthDate = birthDay.getDate();
+        if (data.no_hp || data.email) {
+          modelUsers.createUserByAdmin(data, (error, results) => {
+            if (!error) {
+              if (results.affectedRows) {
+                modelUsers.createUserDetailByAdmin(data, (error) => {
+                  if (!error) {
+                    if (data.tanggalLahir) {
+                      const today = new Date();
+                      const birthDay = data.tanggalLahir;
+                      const thisYear = today.getFullYear();
+                      const thisMonth = today.getMonth() + 1;
+                      const thisDate = today.getDate();
+                      const birthYear = birthDay.getFullYear();
+                      const birthMonth = birthDay.getMonth() + 1;
+                      const birthDate = birthDay.getDate();
 
-                  let age = thisYear - birthYear;
-                  if (thisMonth < birthMonth) {
-                    age -= 1;
-                  } else if (thisMonth === birthMonth) {
-                    if (thisDate < birthDate) {
-                      age -= 1;
-                    }
-                  }
+                      let age = thisYear - birthYear;
+                      if (thisMonth < birthMonth) {
+                        age -= 1;
+                      } else if (thisMonth === birthMonth) {
+                        if (thisDate < birthDate) {
+                          age -= 1;
+                        }
+                      }
 
-                  const ageData = {
-                    col: "umur",
-                    val: age,
-                    id: results.insertId,
-                  };
+                      const ageData = {
+                        col: "umur",
+                        val: age,
+                        id: results.insertId,
+                      };
 
-                  modelUsers.updateProfilePart(ageData, (error) => {
-                    if (error) {
-                      console.log(error);
-                      return response(
-                        res,
-                        400,
-                        false,
-                        "Terjadi error saat update Umur!"
-                      );
+                      modelUsers.updateProfilePart(ageData, (error) => {
+                        if (error) {
+                          return response(
+                            res,
+                            400,
+                            false,
+                            "Terjadi error saat update Umur!"
+                          );
+                        } else {
+                          return response(
+                            res,
+                            200,
+                            true,
+                            "Data has been inserted succesfully!"
+                          );
+                        }
+                      });
                     } else {
                       return response(
                         res,
@@ -73,25 +173,32 @@ exports.addUser = (req, res) => {
                         "Data has been inserted succesfully!"
                       );
                     }
-                  });
-                } else {
-                  return response(
-                    res,
-                    400,
-                    false,
-                    "Failed to created detail items"
-                  );
-                }
-              });
+                  } else {
+                    return response(
+                      res,
+                      400,
+                      false,
+                      "Failed to created detail items"
+                    );
+                  }
+                });
+              } else {
+                return response(res, 400, false, "Failed to created items");
+              }
             } else {
-              return response(res, 400, false, "Failed to created items");
+              response(res, 500, false, error);
             }
-          } else {
-            response(res, 500, false, error);
-          }
-        });
+          });
+        } else {
+          return response(
+            res,
+            400,
+            false,
+            "Mohon untuk mengisi data email atau nomor HP."
+          );
+        }
       } else {
-        return standardResponse(res, 500, false, error);
+        return response(res, 500, false, error);
       }
     });
   } else {
